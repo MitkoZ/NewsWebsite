@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29709.97
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewsWebsite", "NewsWebsite\NewsWebsite.csproj", "{1E243404-DFB2-4FD3-985C-74E755079518}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{371BF1E9-6FAB-4CC6-84B0-A1B2B4B73FFF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess", "DataAccess\DataAccess.csproj", "{F6E13CA2-F8B5-49CF-BC88-FD47AC554BE6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1E243404-DFB2-4FD3-985C-74E755079518}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E243404-DFB2-4FD3-985C-74E755079518}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E243404-DFB2-4FD3-985C-74E755079518}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E243404-DFB2-4FD3-985C-74E755079518}.Release|Any CPU.Build.0 = Release|Any CPU
+		{371BF1E9-6FAB-4CC6-84B0-A1B2B4B73FFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{371BF1E9-6FAB-4CC6-84B0-A1B2B4B73FFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{371BF1E9-6FAB-4CC6-84B0-A1B2B4B73FFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{371BF1E9-6FAB-4CC6-84B0-A1B2B4B73FFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6E13CA2-F8B5-49CF-BC88-FD47AC554BE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6E13CA2-F8B5-49CF-BC88-FD47AC554BE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6E13CA2-F8B5-49CF-BC88-FD47AC554BE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6E13CA2-F8B5-49CF-BC88-FD47AC554BE6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6CF83297-70EE-4985-A445-E10EF7EAA72A}
+	EndGlobalSection
+EndGlobal

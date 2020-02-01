@@ -1,0 +1,9 @@
+version: '3.7'
+
+services:
+  newswebsite:
+    build:
+      context: .
+      dockerfile: NewsWebsite\Dockerfile
+  newsdatabase:
+    image: ${DOCKER_REGISTRY-}microsoft/mssql-server-windows-express

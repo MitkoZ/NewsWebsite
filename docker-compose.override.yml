@@ -1,0 +1,23 @@
+version: '3.7'
+
+services:
+  newswebsite:
+    ports:
+      - "443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;
+      - DatabaseServer=newsdatabase
+      - DatabasePort=${newsDatabasePort}
+      - DatabaseUser=sa
+      - DatabasePassword=${saUserPassword}
+      - DatabaseName=NewsDb
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:C:\Users\ContainerUser\AppData\Roaming\Microsoft\UserSecrets:ro
+      - ${APPDATA}/ASP.NET/Https:C:\Users\ContainerUser\AppData\Roaming\ASP.NET\Https:ro
+  newsdatabase:
+    environment:
+      ACCEPT_EULA: Y
+      sa_password: ${saUserPassword}
+    ports:
+      - ${newsDatabasePort}
