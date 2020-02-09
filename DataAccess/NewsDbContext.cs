@@ -1,7 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using DataAccess.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess
 {
@@ -9,13 +7,25 @@ namespace DataAccess
     {
         public NewsDbContext(DbContextOptions<NewsDbContext> options) : base(options)
         {
-        }
-        public DbSet<Blog> Blogs { get; set; }
-    }
 
-    public class Blog
-    {
-        public int Id { get; set; }
-        public string Url { get; set; }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>(user =>
+            {
+                user
+                .HasIndex(e => e.Email)
+                .IsUnique();
+
+                user
+                .HasIndex(e => e.Username)
+                .IsUnique();
+            });
+
+            base.OnModelCreating(modelBuilder);
+        }
+
+        public DbSet<User> Users { get; set; }
     }
 }

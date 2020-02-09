@@ -1,0 +1,18 @@
+﻿@if (ViewBag.ErrorMessage != null) // We use ViewBag, because we want the error to be deleted after redirect
+{
+    <div class="alert alert-danger fade show" role="alert">
+        @ViewBag.ErrorMessage
+    </div>
+}
+else if (TempData["SuccessMessage"] != null) // We use TempData, because it doesn't get deleted on first redirect
+{
+    <div class="alert alert-success fade show" role="alert">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<script>
+    setTimeout(function () { // a fade out effect of the alert
+        $(".alert").alert('close')
+    }, 5000);
+</script>

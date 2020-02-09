@@ -11,6 +11,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Repositories;
+using Repositories.Interfaces;
+using Services.CRUD;
+using Services.CRUD.Interfaces;
+using Services.Security;
+using Services.Security.Interfaces;
 
 namespace NewsWebsite
 {
@@ -39,6 +45,11 @@ namespace NewsWebsite
                 options.UseSqlServer($"Server={server},{port};Database={databaseName};User Id={user};Password={password}",
                     assembly => assembly.MigrationsAssembly(typeof(NewsDbContext).Assembly.FullName));
             });
+
+            services.AddScoped<IUsersRepository, UsersRepository>();
+            services.AddScoped<IUsersService, UsersService>();
+            services.AddScoped<IPasswordHasher, PasswordHasher>();
+
             services.AddControllersWithViews();
         }
 
@@ -64,10 +75,11 @@ namespace NewsWebsite
 
                 Thread.Sleep(10000); // The setting of the database password takes some time to change. We need to wait until it changes.
                 newsDbContext.Database.Migrate();
-                newsDbContext.Blogs.Add(new Blog
-                {
-                    Url = "testurl"
-                });
+                //newsDbContext.Blogs.Add(new Blog
+                //{
+                //    Url = "testurl"
+                //});
+                //TODO: add admin user
                 newsDbContext.SaveChanges();
             }
 
