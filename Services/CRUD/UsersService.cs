@@ -5,6 +5,8 @@ using Services.CRUD.DTOs;
 using Services.CRUD.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading.Tasks;
 
 namespace Services.CRUD
@@ -56,6 +58,18 @@ namespace Services.CRUD
             };
 
             return signInResultDTO;
+        }
+
+        public bool IsSignedIn(IPrincipal principal)
+        {
+            bool isSignedIn = signInManager.IsSignedIn((ClaimsPrincipal)principal);
+
+            return isSignedIn;
+        }
+
+        public async Task SignOutAsync()
+        {
+            await this.signInManager.SignOutAsync();
         }
     }
 }

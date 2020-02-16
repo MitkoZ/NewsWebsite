@@ -103,5 +103,12 @@ namespace NewsWebsite.Controllers
                 return View(loginUserViewModel);
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> LogoutAsync()
+        {
+            await this.usersService.SignOutAsync();
+            return RedirectToAction(nameof(Index), this.GetControllerName(nameof(HomeController)));
+        }
     }
 }
