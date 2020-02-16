@@ -1,9 +1,9 @@
-﻿using System;
+﻿using DataAccess.Entities.Interfaces;
 
 namespace DataAccess.Entities
 {
-    public abstract class BaseEntity
+    public abstract class BaseEntity : IBaseEntity
     {
-        public Guid Id { get; set; }
+        public string Id { get; set; }
     }
 }

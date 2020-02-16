@@ -1,5 +1,6 @@
 ﻿using DataAccess;
 using DataAccess.Entities;
+using DataAccess.Entities.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
 using System;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 namespace Repositories
 {
     public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity>
-        where TEntity : BaseEntity
+        where TEntity : class, IBaseEntity
     {
         private readonly DbContext dbContext;
 

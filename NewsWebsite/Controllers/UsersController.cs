@@ -1,27 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using DataAccess;
 using DataAccess.Entities;
 using Services.CRUD.Interfaces;
-using Services.Security.Interfaces;
 using NewsWebsite.ViewModels.Users;
+using Services.CRUD.DTOs;
+using NewsWebsite.Utils;
+using Microsoft.Extensions.Logging;
 
 namespace NewsWebsite.Controllers
 {
-    public class UsersController : Controller
+    public class UsersController : BaseController
     {
         private readonly IUsersService usersService;
-        private readonly IPasswordHasher passwordHasher;
 
-        public UsersController(NewsDbContext context, IUsersService usersService, IPasswordHasher passwordHasher)
+        public UsersController(ILogger<BaseController> logger, IUsersService usersService) : base(logger)
         {
             this.usersService = usersService;
-            this.passwordHasher = passwordHasher;
         }
 
         [HttpGet]
@@ -34,24 +29,46 @@ namespace NewsWebsite.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(UserViewModel userViewModel)
         {
-            //TODO: add remote validation for username and email
-            if (ModelState.IsValid)
+            try
             {
-                User userDb = new User();
-                userDb.Username = userViewModel.Username;
-                userDb.Email = userViewModel.Email;
+                //TODO: add remote validation for username and email
+                if (ModelState.IsValid)
+                {
+                    User userDb = new User
+                    {
+                        UserName = userViewModel.Username,
+                        Email = userViewModel.Email
+                    };
 
-                ISaltAndSaltedHashDTO saltAndSaltedHashDTO = this.passwordHasher.GenerateSaltAndSaltedHash(userViewModel.Password);
-                userDb.Salt = saltAndSaltedHashDTO.Salt;
-                userDb.HashedPassword = saltAndSaltedHashDTO.SaltedHash;
+                    RegisterResultDTO registerResultDTO = await usersService.CreateAsync(userDb, userViewModel.Password);
 
-                await usersService.SaveAsync(userDb);
+                    if (!registerResultDTO.IsSucceed)
+                    {
+                        foreach (string errorMessage in registerResultDTO.ErrorMessages)
+                        {
+                            ModelState.AddModelError(string.Empty, errorMessage);
+                        }
+                        return View(userViewModel);
+                    }
 
-                TempData["SuccessMessage"] = "User registered successfully!";
-                string controllerName = nameof(HomeController).Replace("Controller", ""); // we use the Replace method, so that we can use strong typing TODO: extract in a helper method
-                return RedirectToAction(nameof(Index), controllerName);
+                    SignInResultDTO signInResultDTO = await usersService.PasswordSignInAsync(userViewModel.Username, userViewModel.Password);
+
+                    if (signInResultDTO.IsSucceed)
+                    {
+                        TempData["SuccessMessage"] = "User registered successfully!";
+                        string homeControllerName = this.GetControllerName(nameof(HomeController));
+                        return RedirectToAction(nameof(Index), homeControllerName);
+                    }
+                }
+
+                return View(userViewModel);
             }
-            return View(userViewModel);
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = "Ooops, something went wrong";
+                logger.LogError(ex, "A exception with the following input occured: {@userViewModel}", userViewModel);
+                return View(userViewModel);
+            }
         }
 
         [HttpGet]
@@ -61,20 +78,30 @@ namespace NewsWebsite.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginUserViewModel loginUserViewModel)
         {
-            User userDb = await this.usersService.GetAll(x => x.Username == loginUserViewModel.Username).FirstOrDefaultAsync(); //TODO: verification of user before login
-
-            if (userDb == null || !passwordHasher.IsSamePassword(loginUserViewModel.Password, userDb.HashedPassword, userDb.Salt))
+            try
             {
-                ViewBag.ErrorMessage = "Wrong username or password";
-                return View(loginUserViewModel);
+                SignInResultDTO signInResultDTO = await this.usersService.PasswordSignInAsync(loginUserViewModel.Username, loginUserViewModel.Password);
+                if (!signInResultDTO.IsSucceed)
+                {
+                    ViewBag.ErrorMessage = "Wrong username or password";
+                    return View(loginUserViewModel);
+                }
 
+                TempData["SuccessMessage"] = string.Format("Welcome {0}", loginUserViewModel.Username);
+
+                string homeControllerName = this.GetControllerName(nameof(HomeController));
+
+                return RedirectToAction(nameof(Index), homeControllerName);
             }
-
-            TempData["SuccessMessage"] = string.Format("Welcome {0}", userDb.Username);
-            string controllerName = nameof(HomeController).Replace("Controller", ""); // we use the Replace method, so that we can use strong typing
-            return RedirectToAction(nameof(Index), controllerName);
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = "Ooops, something went wrong";
+                logger.LogError(ex, "A exception with the following input occured: {@loginUserViewModel}", loginUserViewModel);
+                return View(loginUserViewModel);
+            }
         }
     }
 }

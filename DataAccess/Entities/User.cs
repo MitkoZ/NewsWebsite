@@ -1,19 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DataAccess.Entities.Interfaces;
+using Microsoft.AspNetCore.Identity;
 
 namespace DataAccess.Entities
 {
-    public class User : BaseEntity
+    public class User : IdentityUser, IBaseEntity // We extend the base IdentityUser in case we need to add more properties later
     {
-        [Required]
-        public string Username { get; set; }
-
-        [Required]
-        public string Email { get; set; }
-
-        [Required]
-        public string HashedPassword { get; set; }
-
-        [Required]
-        public string Salt { get; set; }
     }
 }

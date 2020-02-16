@@ -1,9 +1,10 @@
 ﻿using DataAccess.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess
 {
-    public class NewsDbContext : DbContext
+    public class NewsDbContext : IdentityDbContext<User>
     {
         public NewsDbContext(DbContextOptions<NewsDbContext> options) : base(options)
         {
@@ -12,20 +13,7 @@ namespace DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>(user =>
-            {
-                user
-                .HasIndex(e => e.Email)
-                .IsUnique();
-
-                user
-                .HasIndex(e => e.Username)
-                .IsUnique();
-            });
-
             base.OnModelCreating(modelBuilder);
         }
-
-        public DbSet<User> Users { get; set; }
     }
 }

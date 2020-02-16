@@ -12,9 +12,11 @@ services:
       - DatabaseUser=sa
       - DatabasePassword=${saUserPassword}
       - DatabaseName=NewsDb
+      - logsVolumePath=${logsVolumePath}
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:C:\Users\ContainerUser\AppData\Roaming\Microsoft\UserSecrets:ro
       - ${APPDATA}/ASP.NET/Https:C:\Users\ContainerUser\AppData\Roaming\ASP.NET\Https:ro
+      - ${logsVolumePath}
   newsdatabase:
     environment:
       ACCEPT_EULA: Y
