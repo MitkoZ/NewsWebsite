@@ -38,6 +38,22 @@ namespace Services.CRUD
 
             return registerResult;
         }
+        public async Task<RegisterResultDTO> CreateAsync(User userDb)
+        {
+            IdentityResult identityResult = await userManager.CreateAsync(userDb);
+            RegisterResultDTO registerResult = new RegisterResultDTO();
+
+            if (identityResult.Succeeded)
+            {
+                registerResult.IsSucceed = true;
+
+                return registerResult;
+            }
+
+            registerResult.ErrorMessages = this.GetErrorMessages(identityResult);
+
+            return registerResult;
+        }
 
         private List<string> GetErrorMessages(IdentityResult identityResult)
         {
@@ -71,5 +87,6 @@ namespace Services.CRUD
         {
             await this.signInManager.SignOutAsync();
         }
+
     }
 }

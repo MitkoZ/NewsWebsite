@@ -8,6 +8,7 @@ namespace Services.CRUD.Interfaces
     public interface IUsersService : IBaseCRUDService<User>
     {
         public Task<RegisterResultDTO> CreateAsync(User userDb, string password);
+        Task<RegisterResultDTO> CreateAsync(User userDb);
         public Task<SignInResultDTO> PasswordSignInAsync(string username, string password);
         public bool IsSignedIn(IPrincipal principal);
         public Task SignOutAsync();
