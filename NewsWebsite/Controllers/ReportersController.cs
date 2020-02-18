@@ -50,8 +50,14 @@ namespace NewsWebsite.Controllers
                 return View(createReporterViewModel);
             }
 
-            //TODO: generate a token for setting his account and send him an email to set his password using SMTP
+            string passwordResetToken = await userManager.GeneratePasswordResetTokenAsync(userDb);
+
+            string setPasswordRelativeUrl = Url.Action(nameof(SetPassword), new { passwordResetToken, userId = userDb.Id });
+            string setPasswordAbsoluteUrl = string.Concat(this.Request.Scheme, "://", this.Request.Host, setPasswordRelativeUrl);
+
+            //TODO: send him an email with the setReporterPasswordAbsoluteUrl parameter to set his password using SMTP
             //TODO: add him to the Reporter role (which yet hasn't been created)
+
             TempData["SuccessMessage"] = "The reporter was created and has received an email to set his password";
             string homeControllerName = this.GetControllerName(nameof(HomeController));
             return RedirectToAction(nameof(Index), homeControllerName);
@@ -59,16 +65,23 @@ namespace NewsWebsite.Controllers
 
 
         [HttpGet]
-        public void SetPassword(Guid reporterTokenId)
+        public IActionResult SetPassword(string passwordResetToken, string userId)
         {
             // TODO: if a user with this tokenId exists, send him a form to change his password
+            return View();
         }
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public void SetPassword(Guid reporterTokenId, ReporterPasswordViewModel reporterPasswordViewModel)
+        public async Task SetPasswordAsync(ReporterPasswordViewModel reporterPasswordViewModel)
         {
+            User userDb = await userManager.FindByIdAsync(reporterPasswordViewModel.UserId);
+            IdentityResult identityResult = await userManager.ResetPasswordAsync(userDb, reporterPasswordViewModel.passwordResetToken, reporterPasswordViewModel.Password);
+            if (identityResult.Succeeded)
+            {
+
+            }
             //TODO: get the user by the tokenId
             //TODO: change his password with the newly added one
             //userManager.AddPasswordAsync(,reporterPasswordViewModel.Password);

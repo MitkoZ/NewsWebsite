@@ -47,7 +47,8 @@ namespace NewsWebsite
             });
 
             services.AddIdentity<User, IdentityRole>()
-                    .AddEntityFrameworkStores<NewsDbContext>();
+                    .AddEntityFrameworkStores<NewsDbContext>()
+                    .AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options =>
             {

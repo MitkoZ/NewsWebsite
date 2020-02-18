@@ -13,5 +13,11 @@ namespace NewsWebsite.ViewModels.Reporters
         [Compare(nameof(Password))]
         [DataType(DataType.Password)]
         public string ConfirmPassword { get; set; }
+
+        [Required]
+        public string UserId { get; set; }
+
+        [Required]
+        public string passwordResetToken { get; set; }
     }
 }
