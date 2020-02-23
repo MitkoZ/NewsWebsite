@@ -75,7 +75,8 @@ namespace Services.CRUD
 
             SignInResultDTO signInResultDTO = new SignInResultDTO
             {
-                IsSucceed = signInResult.Succeeded
+                IsSucceed = signInResult.Succeeded,
+                IsNotAllowed = signInResult.IsNotAllowed
             };
 
             return signInResultDTO;
@@ -122,6 +123,34 @@ namespace Services.CRUD
             User userDb = await this.userManager.FindByEmailAsync(email);
 
             return userDb;
+        }
+
+        public async Task<string> GenerateEmailConfirmationTokenAsync(User userDb)
+        {
+            string emailConfirmationToken = await this.userManager.GenerateEmailConfirmationTokenAsync(userDb);
+
+            return emailConfirmationToken;
+        }
+
+        public async Task<UsersServiceResultDTO> ConfirmEmailAsync(User userDb, string token)
+        {
+            IdentityResult identityResult = await this.userManager.ConfirmEmailAsync(userDb, token);
+
+            return this.GetUsersServiceResultDTO(identityResult);
+        }
+
+        public async Task<User> FindByUsername(string username)
+        {
+            User userDb = await this.userManager.FindByNameAsync(username);
+
+            return userDb;
+        }
+
+        public async Task<bool> CheckPasswordAsync(User userDb, string password)
+        {
+            bool isCorrectPassword = await this.userManager.CheckPasswordAsync(userDb, password);
+
+            return isCorrectPassword;
         }
     }
 }

@@ -14,8 +14,12 @@ namespace Services.CRUD.Interfaces
         Task SignOutAsync();
         Task<string> GeneratePasswordResetTokenAsync(User userDb);
         Task<User> FindByIdAsync(string userId);
-        Task<UsersServiceResultDTO> ResetPasswordAsync(User userDb, string passwordResetToken, string newPassword);
+        Task<UsersServiceResultDTO> ResetPasswordAsync(User userDb, string token, string newPassword);
         Task<UsersServiceResultDTO> AddToRoleAsync(User userDb, string role);
         Task<User> FindByEmailAsync(string email);
+        Task<string> GenerateEmailConfirmationTokenAsync(User userDb);
+        Task<UsersServiceResultDTO> ConfirmEmailAsync(User userDb, string token);
+        Task<User> FindByUsername(string username);
+        Task<bool> CheckPasswordAsync(User userDb, string password);
     }
 }

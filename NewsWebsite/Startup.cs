@@ -61,6 +61,7 @@ namespace NewsWebsite
                 options.Password.RequireUppercase = true;
                 options.Password.RequireNonAlphanumeric = true;
                 options.Password.RequiredUniqueChars = 4;
+                options.SignIn.RequireConfirmedEmail = true;
             });
 
             services.AddScoped<IUsersRepository, UsersRepository>();

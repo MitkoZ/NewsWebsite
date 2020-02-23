@@ -34,33 +34,32 @@ namespace NewsWebsite.Controllers
         {
             try
             {
-                //TODO: add remote validation for username and email
-                if (ModelState.IsValid)
+                if (!ModelState.IsValid)
                 {
-                    User userDb = new User
-                    {
-                        UserName = userViewModel.Username,
-                        Email = userViewModel.Email
-                    };
-
-                    UsersServiceResultDTO registerResultDTO = await usersService.CreateAsync(userDb, userViewModel.Password);
-
-                    if (!registerResultDTO.IsSucceed)
-                    {
-                        base.AddValidationErrorsToModelState(registerResultDTO.ErrorMessages);
-                        return View(userViewModel);
-                    }
-
-                    SignInResultDTO signInResultDTO = await usersService.PasswordSignInAsync(userViewModel.Username, userViewModel.Password);
-
-                    if (signInResultDTO.IsSucceed)
-                    {
-                        TempData["SuccessMessage"] = "User registered successfully!";
-                        return base.RedirectToIndexActionInHomeController();
-                    }
+                    return View(userViewModel);
                 }
 
-                return View(userViewModel);
+                User userDb = new User
+                {
+                    UserName = userViewModel.Username,
+                    Email = userViewModel.Email
+                };
+
+                UsersServiceResultDTO registerResultDTO = await usersService.CreateAsync(userDb, userViewModel.Password);
+
+                if (!registerResultDTO.IsSucceed)
+                {
+                    base.AddValidationErrorsToModelState(registerResultDTO.ErrorMessages);
+                    return View(userViewModel);
+                }
+
+                string emailConfirmationToken = await usersService.GenerateEmailConfirmationTokenAsync(userDb);
+                string emailConfirmationLink = this.Url.Action(nameof(ConfirmEmail), this.GetControllerName(nameof(UsersController)), new { userDb.Email, emailConfirmationToken }, Request.Scheme);
+                string emailConfirmation = string.Format("Hi {0}. You have just registered to NewsWebsite. To confirm your email address, please go to: {1}", userDb.UserName, emailConfirmationLink);
+                this.smtpService.SendEmail("NewsWebsite Email Confirmation", emailConfirmation, userViewModel.Email);
+
+                TempData["SuccessMessage"] = "User registered successfully! In order to log in, please check the confirmation email that you have just received.";
+                return base.RedirectToIndexActionInHomeController();
             }
             catch (Exception ex)
             {
@@ -68,6 +67,35 @@ namespace NewsWebsite.Controllers
                 logger.LogError(ex, "A exception with the following input occured: {@userViewModel}", userViewModel);
                 return View(userViewModel);
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string email, string emailConfirmationToken)
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(emailConfirmationToken))
+            {
+                return base.RedirectToIndexActionInHomeController();
+            }
+
+            User userDb = await this.usersService.FindByEmailAsync(email);
+
+            if (userDb == null)
+            {
+                ViewBag.ErrorMessage = "A user with this email doesn't exist!";
+                return View("ValidationErrorsWithoutSpecificModel");
+            }
+
+            UsersServiceResultDTO confirmEmailDTO = await this.usersService.ConfirmEmailAsync(userDb, emailConfirmationToken);
+
+            if (!confirmEmailDTO.IsSucceed)
+            {
+                base.AddValidationErrorsToModelState(confirmEmailDTO.ErrorMessages);
+
+                return View("ValidationErrorsWithoutSpecificModel");
+            }
+
+            TempData["SuccessMessage"] = "Email confirmed successfully!";
+            return base.RedirectToIndexActionInHomeController();
         }
 
         [HttpGet]
@@ -83,6 +111,18 @@ namespace NewsWebsite.Controllers
             try
             {
                 SignInResultDTO signInResultDTO = await this.usersService.PasswordSignInAsync(loginUserViewModel.Username, loginUserViewModel.Password);
+
+                if (signInResultDTO.IsNotAllowed)
+                {
+                    User userDb = await this.usersService.FindByUsername(loginUserViewModel.Username);
+
+                    if (!userDb.EmailConfirmed && await this.usersService.CheckPasswordAsync(userDb, loginUserViewModel.Password)) // we also check if the password is correct, to prevent account enumeration
+                    {
+                        ViewBag.ErrorMessage = "Not confirmed email! Please confirm it";
+                        return View(loginUserViewModel);
+                    }
+                }
+
                 if (!signInResultDTO.IsSucceed)
                 {
                     ViewBag.ErrorMessage = "Wrong username or password";
@@ -124,7 +164,7 @@ namespace NewsWebsite.Controllers
             }
 
             User userDb = await this.usersService.FindByEmailAsync(forgotPasswordViewModel.Email);
-            if (userDb != null)//TODO: check if email was previously confirmed
+            if (userDb != null && userDb.EmailConfirmed)
             {
                 string passwordResetToken = await this.usersService.GeneratePasswordResetTokenAsync(userDb);
 
@@ -156,10 +196,10 @@ namespace NewsWebsite.Controllers
             }
 
             User userDb = await usersService.FindByIdAsync(setPasswordViewModel.UserId);
-            UsersServiceResultDTO registerResultDTO = await usersService.ResetPasswordAsync(userDb, setPasswordViewModel.PasswordResetToken, setPasswordViewModel.Password);
-            if (!registerResultDTO.IsSucceed)
+            UsersServiceResultDTO resetPasswordResultDTO = await usersService.ResetPasswordAsync(userDb, setPasswordViewModel.PasswordResetToken, setPasswordViewModel.Password);
+            if (!resetPasswordResultDTO.IsSucceed)
             {
-                base.AddValidationErrorsToModelState(registerResultDTO.ErrorMessages);
+                base.AddValidationErrorsToModelState(resetPasswordResultDTO.ErrorMessages);
                 return View(setPasswordViewModel);
             }
 

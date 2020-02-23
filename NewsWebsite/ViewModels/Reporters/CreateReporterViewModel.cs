@@ -2,7 +2,7 @@
 
 namespace NewsWebsite.ViewModels.Reporters
 {
-    public class CreateReporterViewModel
+    public class RegisterReporterViewModel
     {
         [Required]
         public string Username { get; set; }
