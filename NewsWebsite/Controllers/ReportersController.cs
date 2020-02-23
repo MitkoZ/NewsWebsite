@@ -51,7 +51,7 @@ namespace NewsWebsite.Controllers
             string passwordResetToken = await usersService.GeneratePasswordResetTokenAsync(userDb);
             string setPasswordAbsoluteUrl = this.GenerateAbsoluteUrl(nameof(SetPassword), new { userId = userDb.Id, passwordResetToken });
 
-            string setPasswordTextEmail = string.Concat("Hi ", userDb.UserName, ", ", "You have just been registered to our website by an system administrator. To complete your registration, please set your password by going to: ", setPasswordAbsoluteUrl);
+            string setPasswordTextEmail = string.Concat("Hi ", userDb.UserName, ", ", "You have just been registered to our website by a system administrator. To complete your registration, please set your password by going to: ", setPasswordAbsoluteUrl);
             this.smtpService.SendEmail("NewsWebsite Complete Registration", setPasswordTextEmail, createReporterViewModel.Email);
 
             UsersServiceResultDTO addToRoleResultDTO = await this.usersService.AddToRoleAsync(userDb, "Reporter");

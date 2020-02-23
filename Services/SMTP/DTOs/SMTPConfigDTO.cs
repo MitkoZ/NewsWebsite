@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Services.SMTP.DTOs
+﻿namespace Services.SMTP.DTOs
 {
     public class SMTPConfigDTO
     {
