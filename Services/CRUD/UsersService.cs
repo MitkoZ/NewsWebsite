@@ -116,5 +116,12 @@ namespace Services.CRUD
 
             return this.GetUsersServiceResultDTO(identityResult);
         }
+
+        public async Task<User> FindByEmailAsync(string email)
+        {
+            User userDb = await this.userManager.FindByEmailAsync(email);
+
+            return userDb;
+        }
     }
 }

@@ -16,5 +16,6 @@ namespace Services.CRUD.Interfaces
         Task<User> FindByIdAsync(string userId);
         Task<UsersServiceResultDTO> ResetPasswordAsync(User userDb, string passwordResetToken, string newPassword);
         Task<UsersServiceResultDTO> AddToRoleAsync(User userDb, string role);
+        Task<User> FindByEmailAsync(string email);
     }
 }

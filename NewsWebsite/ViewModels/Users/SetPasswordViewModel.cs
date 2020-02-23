@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
-namespace NewsWebsite.ViewModels.Reporters
+namespace NewsWebsite.ViewModels.Users
 {
-    public class ReporterPasswordViewModel
+    public class SetPasswordViewModel
     {
         [Required]
         [DataType(DataType.Password)]
