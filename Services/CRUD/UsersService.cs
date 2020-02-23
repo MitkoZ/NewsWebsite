@@ -22,10 +22,31 @@ namespace Services.CRUD
             this.signInManager = signInManager;
         }
 
-        public async Task<RegisterResultDTO> CreateAsync(User userDb, string password)
+        public async Task<UsersServiceResultDTO> CreateAsync(User userDb, string password)
         {
             IdentityResult identityResult = await userManager.CreateAsync(userDb, password);
-            RegisterResultDTO registerResult = new RegisterResultDTO();
+            UsersServiceResultDTO registerResult = new UsersServiceResultDTO();
+
+            if (identityResult.Succeeded)
+            {
+                registerResult.IsSucceed = true;
+
+                return registerResult;
+            }
+
+            registerResult.ErrorMessages = this.GetErrorMessages(identityResult);
+
+            return registerResult;
+        }
+        public async Task<UsersServiceResultDTO> CreateAsync(User userDb)
+        {
+            IdentityResult identityResult = await userManager.CreateAsync(userDb);
+            return GetUsersServiceResultDTO(identityResult);
+        }
+
+        private UsersServiceResultDTO GetUsersServiceResultDTO(IdentityResult identityResult)
+        {
+            UsersServiceResultDTO registerResult = new UsersServiceResultDTO();
 
             if (identityResult.Succeeded)
             {
@@ -70,6 +91,30 @@ namespace Services.CRUD
         public async Task SignOutAsync()
         {
             await this.signInManager.SignOutAsync();
+        }
+
+        public async Task<string> GeneratePasswordResetTokenAsync(User userDb)
+        {
+            return await this.userManager.GeneratePasswordResetTokenAsync(userDb);
+        }
+
+        public async Task<User> FindByIdAsync(string userId)
+        {
+            return await userManager.FindByIdAsync(userId);
+        }
+
+        public async Task<UsersServiceResultDTO> ResetPasswordAsync(User userDb, string passwordResetToken, string newPassword)
+        {
+            IdentityResult identityResult = await userManager.ResetPasswordAsync(userDb, passwordResetToken, newPassword);
+
+            return this.GetUsersServiceResultDTO(identityResult);
+        }
+
+        public async Task<UsersServiceResultDTO> AddToRoleAsync(User userDb, string role)
+        {
+            IdentityResult identityResult = await this.userManager.AddToRoleAsync(userDb, role);
+
+            return this.GetUsersServiceResultDTO(identityResult);
         }
     }
 }

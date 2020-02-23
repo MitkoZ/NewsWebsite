@@ -18,6 +18,9 @@ using Repositories.Interfaces;
 using Serilog;
 using Services.CRUD;
 using Services.CRUD.Interfaces;
+using Services.SMTP;
+using Services.SMTP.DTOs;
+using Services.SMTP.Interfaces;
 
 namespace NewsWebsite
 {
@@ -47,7 +50,8 @@ namespace NewsWebsite
             });
 
             services.AddIdentity<User, IdentityRole>()
-                    .AddEntityFrameworkStores<NewsDbContext>();
+                    .AddEntityFrameworkStores<NewsDbContext>()
+                    .AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -72,6 +76,14 @@ namespace NewsWebsite
 
                 logging.AddSerilog(logger);
             });
+
+            ConfigureOptions(services);
+            services.AddSingleton<ISMTPService, SMTPService>();
+        }
+
+        private void ConfigureOptions(IServiceCollection services) // we use this method in order not to make a dependency on the Options framework. (the IOptions<T> wrapper around the options object https://stackoverflow.com/questions/53424593/services-configure-or-services-addsingleton-get (exact answer: https://stackoverflow.com/a/53431790))
+        {
+            services.AddSingleton(Configuration.GetSection("SMTP").Get<SMTPConfigDTO>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -137,8 +149,22 @@ namespace NewsWebsite
                 });
 
                 // TODO: add admin role to the admin user
-                newsDbContext.SaveChanges();
             }
+
+            if (newsDbContext.Roles.Count() == 0)
+            {
+                newsDbContext.Roles.Add(new IdentityRole
+                {
+                    Id = "164c0c3e-7f24-438f-9708-b7e69c6d2b4a",
+                    Name = "Reporter",
+                    NormalizedName = "REPORTER",
+                    ConcurrencyStamp = "e1728ad7-2b42-41a7-a579-06c38f20a112"
+                });
+            }
+
+            //TODO: Extract magic strings
+            newsDbContext.SaveChanges();
+
         }
     }
 }

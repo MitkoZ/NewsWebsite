@@ -7,9 +7,14 @@ namespace Services.CRUD.Interfaces
 {
     public interface IUsersService : IBaseCRUDService<User>
     {
-        public Task<RegisterResultDTO> CreateAsync(User userDb, string password);
-        public Task<SignInResultDTO> PasswordSignInAsync(string username, string password);
-        public bool IsSignedIn(IPrincipal principal);
-        public Task SignOutAsync();
+        Task<UsersServiceResultDTO> CreateAsync(User userDb, string password);
+        Task<UsersServiceResultDTO> CreateAsync(User userDb);
+        Task<SignInResultDTO> PasswordSignInAsync(string username, string password);
+        bool IsSignedIn(IPrincipal principal);
+        Task SignOutAsync();
+        Task<string> GeneratePasswordResetTokenAsync(User userDb);
+        Task<User> FindByIdAsync(string userId);
+        Task<UsersServiceResultDTO> ResetPasswordAsync(User userDb, string passwordResetToken, string newPassword);
+        Task<UsersServiceResultDTO> AddToRoleAsync(User userDb, string role);
     }
 }
