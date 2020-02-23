@@ -14,5 +14,14 @@ namespace NewsWebsite.Utils
         {
             return controllerName.Replace("Controller", string.Empty);
         }
+
+        public static string GenerateAbsoluteUrl(this Controller controller, string action, object values)
+        {
+            string relativeUrl = controller.Url.Action(action, values);
+            string absoluteUrl = string.Concat(controller.Request.Scheme, "://", controller.Request.Host, relativeUrl);
+
+            return absoluteUrl;
+        }
+
     }
 }

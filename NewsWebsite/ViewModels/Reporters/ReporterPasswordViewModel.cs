@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace NewsWebsite.ViewModels.Reporters
 {
@@ -15,9 +16,11 @@ namespace NewsWebsite.ViewModels.Reporters
         public string ConfirmPassword { get; set; }
 
         [Required]
+        [HiddenInput]
         public string UserId { get; set; }
 
         [Required]
-        public string passwordResetToken { get; set; }
+        [HiddenInput]
+        public string PasswordResetToken { get; set; }
     }
 }

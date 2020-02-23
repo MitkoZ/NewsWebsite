@@ -40,14 +40,11 @@ namespace NewsWebsite.Controllers
                         Email = userViewModel.Email
                     };
 
-                    RegisterResultDTO registerResultDTO = await usersService.CreateAsync(userDb, userViewModel.Password);
+                    UsersServiceResultDTO registerResultDTO = await usersService.CreateAsync(userDb, userViewModel.Password);
 
                     if (!registerResultDTO.IsSucceed)
                     {
-                        foreach (string errorMessage in registerResultDTO.ErrorMessages)
-                        {
-                            ModelState.AddModelError(string.Empty, errorMessage);
-                        }
+                        base.AddValidationErrorsToModelState(registerResultDTO.ErrorMessages);
                         return View(userViewModel);
                     }
 
@@ -56,8 +53,7 @@ namespace NewsWebsite.Controllers
                     if (signInResultDTO.IsSucceed)
                     {
                         TempData["SuccessMessage"] = "User registered successfully!";
-                        string homeControllerName = this.GetControllerName(nameof(HomeController));
-                        return RedirectToAction(nameof(Index), homeControllerName);
+                        return base.RedirectToIndexActionInHomeController();
                     }
                 }
 
@@ -92,9 +88,7 @@ namespace NewsWebsite.Controllers
 
                 TempData["SuccessMessage"] = string.Format("Welcome {0}", loginUserViewModel.Username);
 
-                string homeControllerName = this.GetControllerName(nameof(HomeController));
-
-                return RedirectToAction(nameof(Index), homeControllerName);
+                return base.RedirectToIndexActionInHomeController();
             }
             catch (Exception ex)
             {
@@ -108,7 +102,7 @@ namespace NewsWebsite.Controllers
         public async Task<IActionResult> LogoutAsync()
         {
             await this.usersService.SignOutAsync();
-            return RedirectToAction(nameof(Index), this.GetControllerName(nameof(HomeController)));
+            return base.RedirectToIndexActionInHomeController();
         }
     }
 }

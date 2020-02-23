@@ -11,11 +11,11 @@ namespace NewsWebsite.Controllers
 {
     public class HomeController : Controller
     {
-        ILogger<HomeController> _logger;
+        private readonly ILogger<HomeController> logger;
 
         public HomeController(ILogger<HomeController> logger)
         {
-            _logger = logger;
+            this.logger = logger;
         }
 
         public IActionResult Index()
