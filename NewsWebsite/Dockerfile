@@ -17,9 +17,10 @@ WORKDIR "/sourceCode"
 COPY . .
 WORKDIR "/sourceCode/NewsWebsite"
 RUN dotnet restore NewsWebsite.csproj
-RUN npm install
 
 # We need to use publish, because in .NET Core, the NuGets, don't get added in the output. On the local machine it works without publishing, since the NuGet packages are cached (%userprofile%\.nuget\packages).
 RUN dotnet publish NewsWebsite.csproj -c Debug -o "/publishedCode/Debug"
 WORKDIR "/publishedCode/Debug"
+#It's important to call npm install after the files are published because it deletes the node_modules/README.txt (the README.txt is kept only to include the node_modules folder in theh publish process and git)
+RUN npm install
 ENTRYPOINT ["dotnet", "NewsWebsite.dll"]
