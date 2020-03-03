@@ -140,17 +140,18 @@ namespace NewsWebsite
                     NormalizedUserName = "ADMIN",
                     Email = "admin@newswebsite.com",
                     NormalizedEmail = "ADMIN@NEWSWEBSITE.COM",
-                    EmailConfirmed = false,
+                    EmailConfirmed = true,
                     PasswordHash = "AQAAAAEAACcQAAAAEFniTtxsJTggycel405/tvGlAobWL4X601brrlGscsR1m62OejtsZSHlR3Dnuh5uCg==", // In plaintext the password is adminpass
                     SecurityStamp = "HTO5NGBRE4GHVUGNVPKUFEVJ3OBBWWT2",
                     ConcurrencyStamp = "45cd1fb7-2deb-4749-8d47-30fc15aaf3b8",
                     PhoneNumber = null,
-                    PhoneNumberConfirmed = false,
+                    PhoneNumberConfirmed = true,
                     TwoFactorEnabled = false,
                     LockoutEnd = null,
                     LockoutEnabled = false,
                     AccessFailedCount = 0,
                 });
+                // When seeding the users, set the emails and phones to confirmed, so we don't have to deal with locked seeded users
 
                 // TODO: add admin role to the admin user
             }

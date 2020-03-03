@@ -1,12 +1,14 @@
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1.101-nanoserver-1909
-#Install NodeJS, so we can have NPM
+# When writing a comment, preferably write the comments on new lines, since the comment can be treated as a parameter of some docker file command (like the USER command)
 
-USER ContainerAdministrator
-SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop';$ProgressPreference='silentlyContinue';"] # We need to switch to powershell just to download NodeJS 
+#We need to install NodeJS, so we can have NPM
+SHELL ["pwsh", "-Command", "$ErrorActionPreference='Stop';"] # We need to switch to powershell just to download NodeJS 
 RUN Invoke-WebRequest -OutFile "nodejs.zip" "https://nodejs.org/dist/v13.9.0/node-v13.9.0-win-x64.zip"
 RUN Expand-Archive "nodejs.zip" -DestinationPath "C:/"
 RUN Rename-Item "C:/node-v13.9.0-win-x64" "C:/nodejs"
 SHELL ["cmd", "/S", "/C"] # We need to change back to our normal windows shell (cmd) because powershell doesn't have the path variable and who knows what more
+# We need to switch to the ContainerAdministrator user or we will get an "Access to the registry path is denied." error when trying to set the path variable for the machine
+USER ContainerAdministrator
 RUN setx /M PATH "%PATH%;C:/nodejs"
 USER ContainerUser
 
