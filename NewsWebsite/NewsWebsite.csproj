@@ -29,6 +29,8 @@
     <ProjectReference Include="..\Services\Services.csproj" />
   </ItemGroup>
 
-
+  <ItemGroup>
+	<Content Include="node_modules" />
+  </ItemGroup>
 
 </Project>
