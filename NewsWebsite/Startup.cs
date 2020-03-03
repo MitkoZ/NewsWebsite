@@ -66,6 +66,9 @@ namespace NewsWebsite
 
             services.AddScoped<IUsersRepository, UsersRepository>();
             services.AddScoped<IUsersService, UsersService>();
+            services.AddScoped<INewsRepository, NewsRepository>();
+            services.AddScoped<INewsService, NewsService>();
+
             services.AddControllersWithViews();
             services.AddLogging(logging =>
             {

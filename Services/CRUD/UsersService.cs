@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Services.CRUD
 {
-    public class UsersService : BaseCRUDService<User>, IUsersService
+    public class UsersService : BaseCRUDService<User>, IUsersService //TODO: check if we really all those methods coming from the BaseCRUDService and BaseRepository respectively
     {
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;

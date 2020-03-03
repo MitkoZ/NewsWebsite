@@ -1,5 +1,4 @@
-﻿using DataAccess.Entities;
-using DataAccess.Entities.Interfaces;
+﻿using DataAccess.Entities.Interfaces;
 using Repositories.Interfaces;
 using Services.CRUD.Interfaces;
 using System;
