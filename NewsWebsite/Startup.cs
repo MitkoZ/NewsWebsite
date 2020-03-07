@@ -111,7 +111,6 @@ namespace NewsWebsite
             {
                 NewsDbContext newsDbContext = serviceScope.ServiceProvider.GetService<NewsDbContext>();
 
-                Thread.Sleep(10000); // The setting of the database password takes some time to change. We need to wait until it changes.
                 newsDbContext.Database.Migrate();
                 this.Seed(newsDbContext);
             }

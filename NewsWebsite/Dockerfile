@@ -24,5 +24,8 @@ COPY NewsWebsite/node_modules/README.txt node_modules/README.txt
 
 # We need to use publish, because in .NET Core, the NuGets, don't get added in the output. On the local machine it works without publishing, since the NuGet packages are cached (%userprofile%\.nuget\packages).
 RUN dotnet publish NewsWebsite.csproj -c Debug -o "/publishedCode/Debug"
+
+# The output path has to stay in sync with the docker-compose
 WORKDIR "/publishedCode/Debug"
 ENTRYPOINT ["dotnet", "NewsWebsite.dll"]
+# The dotnet executable has to stay in sync with the docker-compose
