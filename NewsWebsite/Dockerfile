@@ -16,13 +16,13 @@ EXPOSE 443
 WORKDIR "/sourceCode"
 COPY . .
 WORKDIR "/sourceCode/NewsWebsite"
-#RUN dotnet restore NewsWebsite.csproj
 RUN npm install
 
 # We need to copy the the placeholder file (README.txt) again after npm install since it deletes it
 COPY NewsWebsite/node_modules/README.txt node_modules/README.txt
 
 # We need to use publish, because in .NET Core, the NuGets, don't get added in the output. On the local machine it works without publishing, since the NuGet packages are cached (%userprofile%\.nuget\packages).
+# Also, note that we don't need dotnet restore, since dotnet publish includes it in it
 RUN dotnet publish NewsWebsite.csproj -c Debug -o "/publishedCode/Debug"
 
 # The output path has to stay in sync with the docker-compose
