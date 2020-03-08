@@ -34,9 +34,26 @@ namespace Repositories
             return dbSet;
         }
 
-        public async Task<int> SaveAsync(TEntity entity)
+        public void Add(TEntity entity)
         {
             this.dbContext.Set<TEntity>().Add(entity);
+        }
+
+        public void Update(TEntity entity)
+        {
+            this.dbContext.Set<TEntity>().Update(entity);
+        }
+
+        public async Task<int> SaveAsync(TEntity entity)
+        {
+            if (entity.Id == null)
+            {
+                this.Add(entity);
+            }
+            else
+            {
+                this.Update(entity);
+            }
 
             return await dbContext.SaveChangesAsync();
         }

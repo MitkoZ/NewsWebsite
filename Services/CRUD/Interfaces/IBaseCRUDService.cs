@@ -10,6 +10,6 @@ namespace Services.CRUD.Interfaces
     public interface IBaseCRUDService<TEntity> where TEntity : IBaseEntity
     {
         public IQueryable<TEntity> GetAll(Expression<Func<TEntity, bool>> filter = null);
-        public Task<int> SaveAsync(TEntity entity);
+        public Task<bool> SaveAsync(TEntity entity);
     }
 }

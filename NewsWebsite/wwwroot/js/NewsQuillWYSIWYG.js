@@ -1,4 +1,4 @@
-﻿var quill = new Quill('#editor-container', {
+﻿let quill = new Quill('#editor-container', {
     modules: {
         toolbar: [
             [{ 'font': [] }],
@@ -16,17 +16,21 @@
     placeholder: 'Write your news...',
     theme: 'snow'
 });
-quill.setContents({ "ops": [{ "attributes": { "bold": true }, "insert": "gfdgfdgfdgfd" }, { "insert": "\n" }] });
 
-var form = document.querySelector('form');
+let form = document.querySelector('form');
 form.onsubmit = function () {
-    // Populate hidden form on submit
-    var about = document.querySelector('input[name=about]');
-    about.value = JSON.stringify(quill.getContents());
+    // Populate hidden form input on submit
+    populateHiddenInputWithQuillData();
 
     console.log("Submitted", $(form).serialize(), $(form).serializeArray());
-
-    // No back end to actually submit to!
-    alert('Open the console to see the submit data!')
-    return false;
+    return true;
 };
+
+function populateHiddenInputWithQuillData() {
+    let content = document.querySelector('input[name=Content]');
+    content.value = JSON.stringify(quill.getContents());
+}
+
+function populateVisibleContainerWithQuillData(data) {
+    quill.setContents(data);
+}

@@ -1,20 +1,24 @@
-﻿@model NewsWebsite.ViewModels.News.CreateNewsViewModel
+﻿@model NewsWebsite.ViewModels.News.EditNewsViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Edit";
 }
-
 <link rel="stylesheet" type="text/css" href="/node_modules/quill/dist/quill.snow.css">
 <link rel="stylesheet" type="text/css" href="~/css/QuillWYSIWYG.css">
 <script src="/node_modules/quill/dist/quill.js"></script>
 
-<h1>Create</h1>
+<h4>Edit News</h4>
 
 <hr />
 <div class="row">
-    <form asp-action="Create">
+    <form asp-action="Edit">
         <div class="col-md-4">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <input asp-for="Id" class="form-control" />
+                <span asp-validation-for="Id" class="text-danger"></span>
+            </div>
 
             <div class="form-group">
                 <label asp-for="Title" class="control-label"></label>
@@ -24,23 +28,20 @@
         </div>
 
         <div class="container">
-            <label for="editor-container" class="control-label"></label>
             <input asp-for="Content">
-            <span asp-validation-for="Content" class="text-danger"></span>
             <div id="editor-container"></div>
         </div>
 
         <div class="col-md-4">
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary mt-3" />
+                <input type="submit" value="Save" class="btn btn-primary mt-3" />
             </div>
         </div>
     </form>
-
-    <script src="~/js/NewsQuillWYSIWYG.js"></script>
 </div>
 
+<script src="~/js/NewsQuillWYSIWYG.js"></script>
+<script>populateVisibleContainerWithQuillData(@Html.Raw(Model.Content));</script>
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
-

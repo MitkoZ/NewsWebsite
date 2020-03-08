@@ -15,5 +15,7 @@ namespace DataAccess
         {
             base.OnModelCreating(modelBuilder);
         }
+
+        public DbSet<News> News { get; set; }
     }
 }

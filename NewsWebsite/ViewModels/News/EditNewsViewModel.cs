@@ -3,8 +3,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NewsWebsite.ViewModels.News
 {
-    public class CreateNewsViewModel
+    public class EditNewsViewModel
     {
+        [Required]
+        [HiddenInput]
+        public string Id { get; set; }
+
         [Required]
         public string Title { get; set; }
 
