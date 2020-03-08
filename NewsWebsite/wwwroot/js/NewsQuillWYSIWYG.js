@@ -21,6 +21,7 @@ let form = document.querySelector('form');
 form.onsubmit = function () {
     // Populate hidden form input on submit
     populateHiddenInputWithQuillData();
+    trimQuillInput();
 
     console.log("Submitted", $(form).serialize(), $(form).serializeArray());
     return true;
@@ -33,4 +34,15 @@ function populateHiddenInputWithQuillData() {
 
 function populateVisibleContainerWithQuillData(data) {
     quill.setContents(data);
+}
+
+function getQuillLength() {
+    return quill.getLength(); // Retrieves the length of the editor contents. Note even when Quill is empty, there is still a blank line represented by ‘\n’, so getLength will return 1. (source: https://quilljs.com/docs/api/#getlength)
+}
+
+function trimQuillInput() {
+    let content = document.querySelector('input[name=Content]');
+    if (getQuillLength() == 1) {
+        content.value = null;
+    }
 }
