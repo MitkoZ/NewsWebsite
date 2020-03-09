@@ -84,7 +84,13 @@ namespace NewsWebsite.Controllers
         [HttpPost]
         public async Task<IActionResult> EditAsync(EditNewsViewModel editNewsViewModel)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(editNewsViewModel);
+            }
+
             News newsDb = this.newsService.GetAll(x => x.Id == editNewsViewModel.Id).FirstOrDefault();
+
             if (newsDb == null)
             {
                 this.AddValidationErrorsToModelState(new List<string> { "A news with this id doesn't exist" });
