@@ -17,7 +17,7 @@
     theme: 'snow'
 });
 
-let form = document.querySelector('form');
+let form = document.getElementById("news-form");
 form.onsubmit = function () {
     // Populate hidden form input on submit
     populateHiddenInputWithQuillData();

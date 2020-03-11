@@ -9,5 +9,11 @@ namespace DataAccess.Entities
 
         [Required]
         public string Content { get; set; } // we save it in Deltas format (subset of JSON, specific for the Quill WYSIWYG editor)
+
+        [Required]
+        public string UserId { get; set; }
+
+        [Required]
+        public User User { get; set; }
     }
 }

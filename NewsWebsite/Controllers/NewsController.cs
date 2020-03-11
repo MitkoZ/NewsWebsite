@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using DataAccess.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -47,7 +48,8 @@ namespace NewsWebsite.Controllers
             News newsDb = new News
             {
                 Title = createNewsViewModel.Title,
-                Content = createNewsViewModel.Content
+                Content = createNewsViewModel.Content,
+                UserId = base.GetCurrentUserId()
             };
 
             bool isSaved = await newsService.SaveAsync(newsDb);
@@ -57,7 +59,7 @@ namespace NewsWebsite.Controllers
                 return View(createNewsViewModel);
             }
 
-            TempData["SuccessMessage"] = "News create successfully!";
+            TempData["SuccessMessage"] = "News created successfully!";
             return RedirectToIndexActionInHomeController();
         }
 
