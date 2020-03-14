@@ -28,3 +28,7 @@
 </div>
 
 <script src="~/js/NewsQuillWYSIWYG.js"></script>
+<script>
+    let wysiwyg = new WYSIWYG("#editor-container");
+    wysiwyg.attachOnSubmitWYSIWYGHandler("news-form", "input[name=Content]");
+</script>
