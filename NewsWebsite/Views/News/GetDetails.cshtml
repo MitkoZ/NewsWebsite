@@ -60,6 +60,6 @@
 
 <script src="~/js/NewsQuillWYSIWYG.js"></script>
 <script>
-    let wysiwyg = new WYSIWYG("#editor-container", true);
+    let wysiwyg = new WYSIWYG("editor-container", true);
     wysiwyg.populateContainerWithWYSIWYGData(@Html.Raw(Model.Content));
 </script>

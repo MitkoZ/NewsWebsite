@@ -1,8 +1,15 @@
-﻿@model IEnumerable<NewsWebsite.ViewModels.News.DetailsNewsViewModel>
+﻿@model List<NewsWebsite.ViewModels.News.DetailsNewsViewModel>
+@inject Services.CRUD.Interfaces.IUsersService usersService;
+@using System.Security.Claims;
 
 @{
     ViewData["Title"] = "ListAll";
 }
+
+<link rel="stylesheet" type="text/css" href="/node_modules/quill/dist/quill.snow.css">
+<link rel="stylesheet" type="text/css" href="~/css/QuillWYSIWYG.css">
+<script src="/node_modules/quill/dist/quill.js"></script>
+<script src="~/js/NewsQuillWYSIWYG.js"></script>
 
 <h1>All News</h1>
 
@@ -14,32 +21,43 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Title)
+                @Html.DisplayNameFor(model => model[0].Title)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Content)
+                @Html.DisplayNameFor(model => model[0].Content)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ReporterName)
+                @Html.DisplayNameFor(model => model[0].ReporterName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
+                @Html.DisplayNameFor(model => model[0].CreatedAt)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
+                @Html.DisplayNameFor(model => model[0].UpdatedAt)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+
+        @for (int i = 0; i < Model.Count(); i++)
         {
+            var item = Model[i];
+
             <tr>
                 <td>
                     @Html.DisplayFor(modelItem => item.Title)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Content)
+                    <div class="container">
+                        <div id="editor-container-@i"></div>
+                    </div>
+
+                    <script>
+                        let wysiwyg_@i = new WYSIWYG("editor-container-@i", true); // use _ in the JavaScript variables names (we get a runtime error when using -)
+                        (wysiwyg_@i).populateContainerWithWYSIWYGData(@Html.Raw(item.Content)); // we set the contents of QuillJs, so that we can extract some part of it's text (since it's stored in Deltas format)
+                        (wysiwyg_@i).setText((wysiwyg_@i).getShortExcerpt());
+                    </script>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ReporterName)
@@ -52,6 +70,17 @@
                 </td>
                 <td>
                     @Html.ActionLink("Details", "GetDetails", new { id = item.Id })
+                </td>
+                <td>
+                    @if (usersService.IsSignedIn(User))
+                    {
+                        string currentUserId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                        if (currentUserId == item.ReporterId)
+                        {
+                            @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+                        }
+                    }
                 </td>
             </tr>
         }

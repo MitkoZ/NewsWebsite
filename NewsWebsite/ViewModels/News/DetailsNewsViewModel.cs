@@ -8,6 +8,7 @@ namespace NewsWebsite.ViewModels.News
         public string Id { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
+        public string ReporterId { get; set; }
 
         [Display(Name = "Reporter Name")]
         public string ReporterName { get; set; }

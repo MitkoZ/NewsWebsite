@@ -16,8 +16,9 @@
 
 <div class="container">
     <input asp-for="Content"> <!--We use a hidden input to post the data with JavaScript after moving it from the editor-container-->
+    @Html.LabelFor(model => model.Content)
+    <br />
     <span asp-validation-for="Content" class="text-danger"></span>
-    <label class="control-label">Content</label>
     <div id="editor-container"></div>
 </div>
 
@@ -29,6 +30,6 @@
 
 <script src="~/js/NewsQuillWYSIWYG.js"></script>
 <script>
-    let wysiwyg = new WYSIWYG("#editor-container");
-    wysiwyg.attachOnSubmitWYSIWYGHandler("news-form", "input[name=Content]");
+    let wysiwyg = new WYSIWYG("editor-container");
+    wysiwyg.attachOnSubmitWYSIWYGHandler("news-form", "@nameof(Model.Content)");
 </script>

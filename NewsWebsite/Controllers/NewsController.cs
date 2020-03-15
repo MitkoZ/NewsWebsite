@@ -33,7 +33,9 @@ namespace NewsWebsite.Controllers
                     Content = newsDb.Content,
                     ReporterName = newsDb.User.UserName,
                     CreatedAt = newsDb.CreatedAt,
-                    UpdatedAt = newsDb.UpdatedAt
+                    UpdatedAt = newsDb.UpdatedAt,
+                    ReporterId = newsDb.UserId
+
                 };
 
                 detailsNewsViewModels.Add(listNewsViewModel);
@@ -58,7 +60,7 @@ namespace NewsWebsite.Controllers
                 Title = newsDb.Title,
                 ReporterName = newsDb.User.UserName,
                 CreatedAt = newsDb.CreatedAt,
-                UpdatedAt = newsDb.UpdatedAt
+                UpdatedAt = newsDb.UpdatedAt,
             };
 
             return View(detailsNewsViewModel);
