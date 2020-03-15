@@ -17,13 +17,15 @@ function WYSIWYG(containerId, isDisabled) {
     // public functions declaration to achieve OOP style rather than functional programming
     this.getQuill = function (isDisabled) {
         if (isDisabled) {
-            return new Quill(containerId, {
+            let quill = new Quill(containerId, {
                 modules: {
                     toolbar: false
                 },
-                theme: "snow"
+                theme: "snow",
             });
             quill.disable();
+
+            return quill;
         }
         else {
             return new Quill(containerId, {

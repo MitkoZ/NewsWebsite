@@ -1,4 +1,5 @@
 ﻿@inject Services.CRUD.Interfaces.IUsersService usersService;
+@using System.Security.Claims;
 
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
     <div class="container">
@@ -26,6 +27,15 @@
                             </button>
                         </form>
                     </li>
+
+                    string currentUserId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                    if (await this.usersService.IsInRoleAsync(currentUserId, "Administrator"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Reporters" asp-action="Register">Register a Reporter</a>
+                        </li>
+                    }
                 }
                 else
                 {
@@ -39,7 +49,7 @@
                 }
 
                 <li class="nav-item">
-                    <a class="nav-link text-dark" asp-area="" asp-controller="News" asp-action="List">News</a>
+                    <a class="nav-link text-dark" asp-area="" asp-controller="News" asp-action="ListAll">News</a>
                 </li>
 
             </ul>

@@ -118,6 +118,13 @@ namespace Services.CRUD
             return this.GetUsersServiceResultDTO(identityResult);
         }
 
+        public async Task<bool> IsInRoleAsync(string userId, string role)
+        {
+            User userDb = base.GetAll(x => x.Id == userId).FirstOrDefault();
+
+            return await this.userManager.IsInRoleAsync(userDb, role);
+        }
+
         public async Task<User> FindByEmailAsync(string email)
         {
             User userDb = await this.userManager.FindByEmailAsync(email);

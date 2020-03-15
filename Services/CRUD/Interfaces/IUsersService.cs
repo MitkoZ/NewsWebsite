@@ -1,5 +1,6 @@
 ﻿using DataAccess.Entities;
 using Services.CRUD.DTOs;
+using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
 
@@ -16,6 +17,7 @@ namespace Services.CRUD.Interfaces
         Task<User> FindByIdAsync(string userId);
         Task<UsersServiceResultDTO> ResetPasswordAsync(User userDb, string token, string newPassword);
         Task<UsersServiceResultDTO> AddToRoleAsync(User userDb, string role);
+        Task<bool> IsInRoleAsync(string userId, string role);
         Task<User> FindByEmailAsync(string email);
         Task<string> GenerateEmailConfirmationTokenAsync(User userDb);
         Task<UsersServiceResultDTO> ConfirmEmailAsync(User userDb, string token);

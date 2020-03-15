@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace DataAccess.Entities
 {
@@ -14,6 +15,10 @@ namespace DataAccess.Entities
         public string UserId { get; set; }
 
         [Required]
-        public User User { get; set; }
+        public virtual User User { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+
+        public DateTime UpdatedAt { get; set; }
     }
 }

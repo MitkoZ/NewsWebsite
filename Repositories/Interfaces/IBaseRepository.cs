@@ -9,7 +9,7 @@ namespace Repositories.Interfaces
 {
     public interface IBaseRepository<TEntity> where TEntity : IBaseEntity
     {
-        public IQueryable<TEntity> GetAll(Expression<Func<TEntity, bool>> filter = null);
-        public Task<int> SaveAsync(TEntity entity);
+        IQueryable<TEntity> GetAll(Expression<Func<TEntity, bool>> filter = null);
+        Task<int> SaveAsync(TEntity entity);
     }
 }

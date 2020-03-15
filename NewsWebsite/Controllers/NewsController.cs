@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using DataAccess.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -20,9 +18,50 @@ namespace NewsWebsite.Controllers
             this.newsService = newsService;
         }
 
-        public IActionResult List()
+        [HttpGet]
+        public IActionResult ListAll()
         {
-            return View();
+            List<News> newsDbCollection = this.newsService.GetAll().ToList();
+            List<DetailsNewsViewModel> detailsNewsViewModels = new List<DetailsNewsViewModel>();
+
+            foreach (News newsDb in newsDbCollection)
+            {
+                DetailsNewsViewModel listNewsViewModel = new DetailsNewsViewModel
+                {
+                    Id = newsDb.Id,
+                    Title = newsDb.Title,
+                    Content = newsDb.Content,
+                    ReporterName = newsDb.User.UserName,
+                    CreatedAt = newsDb.CreatedAt,
+                    UpdatedAt = newsDb.UpdatedAt
+                };
+
+                detailsNewsViewModels.Add(listNewsViewModel);
+            }
+
+            return View(detailsNewsViewModels);
+        }
+
+        [HttpGet]
+        public IActionResult GetDetails(string id)
+        {
+            News newsDb = newsService.GetAll(x => x.Id == id).FirstOrDefault();
+            if (newsDb == null)
+            {
+                ModelState.AddModelError("", "A news with this id doesn't exist!");
+                return View("ValidationErrorsWithoutSpecificModel");
+            }
+
+            DetailsNewsViewModel detailsNewsViewModel = new DetailsNewsViewModel
+            {
+                Content = newsDb.Content,
+                Title = newsDb.Title,
+                ReporterName = newsDb.User.UserName,
+                CreatedAt = newsDb.CreatedAt,
+                UpdatedAt = newsDb.UpdatedAt
+            };
+
+            return View(detailsNewsViewModel);
         }
 
         [HttpGet]
