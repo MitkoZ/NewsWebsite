@@ -34,5 +34,10 @@ namespace Services.CRUD
 
             return false;
         }
+
+        public async Task<bool> DeleteAsync(string id)
+        {
+            return await this.repository.DeleteAsync(id) > 0;
+        }
     }
 }

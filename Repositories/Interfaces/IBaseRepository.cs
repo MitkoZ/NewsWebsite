@@ -11,5 +11,6 @@ namespace Repositories.Interfaces
     {
         IQueryable<TEntity> GetAll(Expression<Func<TEntity, bool>> filter = null);
         Task<int> SaveAsync(TEntity entity);
+        Task<int> DeleteAsync(string id);
     }
 }

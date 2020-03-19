@@ -56,5 +56,13 @@ namespace Repositories
 
             return await dbContext.SaveChangesAsync();
         }
+
+        public async Task<int> DeleteAsync(string id)
+        {
+            TEntity entity = await this.dbContext.Set<TEntity>().FindAsync(id);
+            this.dbContext.Remove(entity);
+
+            return await this.dbContext.SaveChangesAsync();
+        }
     }
 }

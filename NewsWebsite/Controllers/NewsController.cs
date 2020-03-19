@@ -153,5 +153,20 @@ namespace NewsWebsite.Controllers
             TempData["SuccessMessage"] = "News edited successfully!";
             return RedirectToIndexActionInHomeController();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteAsync(string id)
+        {
+            bool isDeleted = await this.newsService.DeleteAsync(id);
+
+            if (isDeleted)
+            {
+                TempData["SuccessMessage"] = "News deleted successfully!";
+                return RedirectToIndexActionInHomeController();
+            }
+
+            ModelState.AddModelError("", "Ooops, something went wrong");
+            return View("ValidationErrorsWithoutSpecificModel");
+        }
     }
 }
