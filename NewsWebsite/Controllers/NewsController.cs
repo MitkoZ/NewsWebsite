@@ -69,7 +69,7 @@ namespace NewsWebsite.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            return View(new CreateNewsViewModel()); // Use the overload with the empty ViewModel, or our Model in the view will be null
         }
 
         [HttpPost]
@@ -84,6 +84,7 @@ namespace NewsWebsite.Controllers
             {
                 string titleName = nameof(createNewsViewModel.Title);
                 this.ModelState.AddModelError(titleName, string.Format("A news with this {0} already exists!", titleName));
+                return View(createNewsViewModel);
             }
 
             News newsDb = new News
@@ -129,6 +130,14 @@ namespace NewsWebsite.Controllers
         {
             if (!ModelState.IsValid)
             {
+                return View(editNewsViewModel);
+            }
+
+            News otherNewsDbWithSameTitle = this.newsService.GetAll(x => x.Id != editNewsViewModel.Id && x.Title == editNewsViewModel.Title).FirstOrDefault();
+            if (otherNewsDbWithSameTitle != null)
+            {
+                string titleName = nameof(editNewsViewModel.Title);
+                this.ModelState.AddModelError(titleName, string.Format("A news with this {0} already exists!", titleName));
                 return View(editNewsViewModel);
             }
 

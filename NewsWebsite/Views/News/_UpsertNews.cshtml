@@ -33,3 +33,9 @@
     let wysiwyg = new WYSIWYG("editor-container");
     wysiwyg.attachOnSubmitWYSIWYGHandler("news-form", "@nameof(Model.Content)");
 </script>
+
+@if (!string.IsNullOrWhiteSpace(Model.Content))
+{
+    <script>WYSIWYGInstance.populateContainerWithWYSIWYGData(@Html.Raw(Model.Content));</script><!--We need to populate the container with the hidden News Content value, in order to display it-->
+}
+
