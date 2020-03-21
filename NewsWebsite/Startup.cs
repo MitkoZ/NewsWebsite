@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -108,13 +109,7 @@ namespace NewsWebsite
                 app.UseHsts();
             }
 
-            using (var serviceScope = app.ApplicationServices.CreateScope())
-            {
-                NewsDbContext newsDbContext = serviceScope.ServiceProvider.GetService<NewsDbContext>();
-
-                newsDbContext.Database.Migrate();
-                this.Seed(newsDbContext);
-            }
+            this.MigrateAndSeed(app);
 
             app.UseHttpsRedirection();
             app.UseFileServer(new FileServerOptions()
@@ -138,6 +133,29 @@ namespace NewsWebsite
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private void MigrateAndSeed(IApplicationBuilder app)
+        {
+            using (var serviceScope = app.ApplicationServices.CreateScope())
+            {
+                NewsDbContext newsDbContext = serviceScope.ServiceProvider.GetService<NewsDbContext>();
+                while (true) // Try to connect until a successful connection, since Docker has some timing issues when initializing the database container.
+                {
+                    try
+                    {
+                        newsDbContext.Database.Migrate();
+                        break; // if the migrate is successful, the code flow will reach this break
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.Write(ex.ToString());
+                        Thread.Sleep(15000);
+                    }
+                }
+
+                this.Seed(newsDbContext);
+            }
         }
 
         private void Seed(NewsDbContext newsDbContext)
