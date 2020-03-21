@@ -5,5 +5,7 @@ services:
     build:
       context: .
       dockerfile: NewsWebsite\Dockerfile
+    depends_on: 
+      - newsdatabase
   newsdatabase:
     image: ${DOCKER_REGISTRY-}microsoft/mssql-server-windows-express

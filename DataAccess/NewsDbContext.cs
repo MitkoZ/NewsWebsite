@@ -13,7 +13,12 @@ namespace DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<News>()
+                .HasIndex(news => news.Title).IsUnique();
+
             base.OnModelCreating(modelBuilder);
         }
+
+        public DbSet<News> News { get; set; }
     }
 }

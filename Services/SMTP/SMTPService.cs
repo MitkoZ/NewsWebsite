@@ -22,7 +22,7 @@ namespace Services.SMTP
 
         /// <summary>
         /// For Gmail, Less secure apps should be turned on from https://myaccount.google.com/lesssecureapps 
-        /// (If an app or site doesn’t meet our security standards, Google might block anyone who’s trying to sign in to your account from it.
+        /// (If an app or site doesn't meet our security standards, Google might block anyone who's trying to sign in to your account from it.
         /// Less secure apps can make it easier for hackers to get in to your account, so blocking sign-ins from these apps helps keep your account safe. 
         /// For more info about less secure apps option: https://support.google.com/accounts/answer/6010255?hl=en)
         /// </summary>

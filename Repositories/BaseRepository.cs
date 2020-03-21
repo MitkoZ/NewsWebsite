@@ -1,5 +1,4 @@
 ﻿using DataAccess;
-using DataAccess.Entities;
 using DataAccess.Entities.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
@@ -34,11 +33,36 @@ namespace Repositories
             return dbSet;
         }
 
-        public async Task<int> SaveAsync(TEntity entity)
+        public virtual void Add(TEntity entity)
         {
             this.dbContext.Set<TEntity>().Add(entity);
+        }
+
+        public virtual void Update(TEntity entity)
+        {
+            this.dbContext.Set<TEntity>().Update(entity);
+        }
+
+        public async Task<int> SaveAsync(TEntity entity)
+        {
+            if (entity.Id == null)
+            {
+                this.Add(entity);
+            }
+            else
+            {
+                this.Update(entity);
+            }
 
             return await dbContext.SaveChangesAsync();
+        }
+
+        public async Task<int> DeleteAsync(string id)
+        {
+            TEntity entity = await this.dbContext.Set<TEntity>().FindAsync(id);
+            this.dbContext.Remove(entity);
+
+            return await this.dbContext.SaveChangesAsync();
         }
     }
 }

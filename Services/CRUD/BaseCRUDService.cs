@@ -1,5 +1,4 @@
-﻿using DataAccess.Entities;
-using DataAccess.Entities.Interfaces;
+﻿using DataAccess.Entities.Interfaces;
 using Repositories.Interfaces;
 using Services.CRUD.Interfaces;
 using System;
@@ -24,9 +23,21 @@ namespace Services.CRUD
             return this.repository.GetAll(filter);
         }
 
-        public async Task<int> SaveAsync(TEntity entity)
+        public async Task<bool> SaveAsync(TEntity entity)
         {
-            return await this.repository.SaveAsync(entity);
+            int savedEntities = await this.repository.SaveAsync(entity);
+
+            if (savedEntities > 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public async Task<bool> DeleteAsync(string id)
+        {
+            return await this.repository.DeleteAsync(id) > 0;
         }
     }
 }

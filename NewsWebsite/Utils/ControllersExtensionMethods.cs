@@ -2,7 +2,7 @@
 
 namespace NewsWebsite.Utils
 {
-    public static class ControllerExtensionMethods
+    public static class ControllersExtensionMethods
     {
         /// <summary>
         /// A way to get the controller name without the "Controller" suffix

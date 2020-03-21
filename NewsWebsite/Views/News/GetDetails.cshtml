@@ -1,0 +1,65 @@
+﻿@model NewsWebsite.ViewModels.News.DetailsNewsViewModel
+
+@{
+    ViewData["Title"] = "GetDetails";
+}
+
+<link rel="stylesheet" type="text/css" href="/node_modules/quill/dist/quill.snow.css">
+<link rel="stylesheet" type="text/css" href="~/css/QuillWYSIWYG.css">
+<script src="/node_modules/quill/dist/quill.js"></script>
+
+<h1>News Details</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Content)
+        </dt>
+
+        <div class="container">
+            <div id="editor-container"></div>
+        </div>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ReporterName)
+        </dt>
+
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ReporterName)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CreatedAt)
+        </dt>
+
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CreatedAt)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UpdatedAt)
+        </dt>
+
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UpdatedAt)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="ListAll">Back to All News</a>
+</div>
+
+<script src="~/js/NewsQuillWYSIWYG.js"></script>
+<script>
+    let wysiwyg = new WYSIWYG("editor-container", true);
+    wysiwyg.populateContainerWithWYSIWYGData(@Html.Raw(Model.Content));
+</script>

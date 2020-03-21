@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using NewsWebsite.Utils;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace NewsWebsite.Controllers
 {
@@ -21,12 +22,22 @@ namespace NewsWebsite.Controllers
             return RedirectToAction(nameof(Index), homeControllerName);
         }
 
+        protected IActionResult RedirectToListAllActionInCurrentController()
+        {
+            return RedirectToAction("ListAll"); //TODO: replace with strong typing (nameof) when you make a base listing action 
+        }
+
         protected void AddValidationErrorsToModelState(List<string> errorMessages)
         {
             foreach (string errorMessage in errorMessages)
             {
                 ModelState.AddModelError(string.Empty, errorMessage);
             }
+        }
+
+        public string GetCurrentUserId()
+        {
+            return User.FindFirstValue(ClaimTypes.NameIdentifier);
         }
     }
 }

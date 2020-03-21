@@ -1,0 +1,9 @@
+version: '3.7'
+
+services:
+  newswebsite:
+   labels:
+    com.microsoft.visualstudio.debuggee.workingdirectory: "C:\\publishedCode\\Debug"
+    com.microsoft.visualstudio.debuggee.program: '"C:\Program Files\dotnet\dotnet.exe"'
+    com.microsoft.visualstudio.debuggee.killprogram: C:\remote_debugger\x64\utils\KillProcess.exe
+    com.microsoft.visualstudio.debuggee.arguments: ' --additionalprobingpath c:\.nuget\packages "NewsWebsite.dll"'

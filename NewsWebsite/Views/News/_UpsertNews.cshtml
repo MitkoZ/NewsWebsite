@@ -1,0 +1,41 @@
+﻿@model NewsWebsite.ViewModels.News.CreateNewsViewModel
+
+<link rel="stylesheet" type="text/css" href="/node_modules/quill/dist/quill.snow.css">
+<link rel="stylesheet" type="text/css" href="~/css/QuillWYSIWYG.css">
+<script src="/node_modules/quill/dist/quill.js"></script>
+
+<div class="col-md-4">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group">
+        <label asp-for="Title" class="control-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="container">
+    <input asp-for="Content"> <!--We use a hidden input to post the data with JavaScript after moving it from the editor-container-->
+    @Html.LabelFor(model => model.Content)
+    <br />
+    <span asp-validation-for="Content" class="text-danger"></span>
+    <div id="editor-container"></div>
+</div>
+
+<div class="col-md-4">
+    <div class="form-group">
+        <input type="submit" value="Save" class="btn btn-primary mt-3" />
+    </div>
+</div>
+
+<script src="~/js/NewsQuillWYSIWYG.js"></script>
+<script>
+    let wysiwyg = new WYSIWYG("editor-container");
+    wysiwyg.attachOnSubmitWYSIWYGHandler("news-form", "@nameof(Model.Content)");
+</script>
+
+@if (!string.IsNullOrWhiteSpace(Model.Content))
+{
+    <script>WYSIWYGInstance.populateContainerWithWYSIWYGData(@Html.Raw(Model.Content));</script><!--We need to populate the container with the hidden News Content value, in order to display it-->
+}
+

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Services.CRUD
 {
-    public class UsersService : BaseCRUDService<User>, IUsersService
+    public class UsersService : BaseCRUDService<User>, IUsersService //TODO: check if we really all those methods coming from the BaseCRUDService and BaseRepository respectively
     {
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
@@ -116,6 +116,13 @@ namespace Services.CRUD
             IdentityResult identityResult = await this.userManager.AddToRoleAsync(userDb, role);
 
             return this.GetUsersServiceResultDTO(identityResult);
+        }
+
+        public async Task<bool> IsInRoleAsync(string userId, string role)
+        {
+            User userDb = base.GetAll(x => x.Id == userId).FirstOrDefault();
+
+            return await this.userManager.IsInRoleAsync(userDb, role);
         }
 
         public async Task<User> FindByEmailAsync(string email)
