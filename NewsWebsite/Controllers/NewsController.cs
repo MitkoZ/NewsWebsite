@@ -35,7 +35,6 @@ namespace NewsWebsite.Controllers
                     CreatedAt = newsDb.CreatedAt,
                     UpdatedAt = newsDb.UpdatedAt,
                     ReporterId = newsDb.UserId
-
                 };
 
                 detailsNewsViewModels.Add(listNewsViewModel);
@@ -102,7 +101,7 @@ namespace NewsWebsite.Controllers
             }
 
             TempData["SuccessMessage"] = "News created successfully!";
-            return RedirectToIndexActionInHomeController();
+            return RedirectToListAllActionInCurrentController();
         }
 
         [HttpGet]
@@ -160,7 +159,7 @@ namespace NewsWebsite.Controllers
             }
 
             TempData["SuccessMessage"] = "News edited successfully!";
-            return RedirectToIndexActionInHomeController();
+            return RedirectToListAllActionInCurrentController();
         }
 
         [HttpPost]
@@ -171,7 +170,7 @@ namespace NewsWebsite.Controllers
             if (isDeleted)
             {
                 TempData["SuccessMessage"] = "News deleted successfully!";
-                return RedirectToIndexActionInHomeController();
+                return RedirectToListAllActionInCurrentController();
             }
 
             ModelState.AddModelError("", "Ooops, something went wrong");
