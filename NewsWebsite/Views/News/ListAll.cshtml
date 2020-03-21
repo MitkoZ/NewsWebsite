@@ -85,7 +85,7 @@
                 {
                     string currentUserId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                    if (currentUserId == item.ReporterId)
+                    if (currentUserId == item.ReporterId || await this.usersService.IsInRoleAsync(currentUserId, "Administrator"))
                     {
                         <td>
                             @Html.ActionLink("Edit", "Edit", new { id = item.Id })
