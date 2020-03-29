@@ -11,12 +11,12 @@ using Services.SMTP.Interfaces;
 
 namespace NewsWebsite.Controllers
 {
-    public class UsersController : BaseController
+    public class UsersController : BaseViewsController
     {
         private readonly IUsersService usersService;
         private readonly ISMTPService smtpService;
 
-        public UsersController(ILogger<BaseController> logger, IUsersService usersService, ISMTPService smtpService) : base(logger)
+        public UsersController(ILogger<BaseViewsController> logger, IUsersService usersService, ISMTPService smtpService) : base(logger)
         {
             this.usersService = usersService;
             this.smtpService = smtpService;

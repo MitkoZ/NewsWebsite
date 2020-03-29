@@ -7,11 +7,11 @@ using System.Security.Claims;
 
 namespace NewsWebsite.Controllers
 {
-    public class BaseController : Controller
+    public abstract class BaseViewsController : Controller
     {
-        protected readonly ILogger<BaseController> logger;
+        protected readonly ILogger<BaseViewsController> logger;
 
-        public BaseController(ILogger<BaseController> logger)
+        public BaseViewsController(ILogger<BaseViewsController> logger)
         {
             this.logger = logger;
         }
@@ -33,11 +33,6 @@ namespace NewsWebsite.Controllers
             {
                 ModelState.AddModelError(string.Empty, errorMessage);
             }
-        }
-
-        public string GetCurrentUserId()
-        {
-            return User.FindFirstValue(ClaimTypes.NameIdentifier);
         }
     }
 }

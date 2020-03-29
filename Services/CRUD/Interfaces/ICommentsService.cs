@@ -2,7 +2,7 @@
 
 namespace Services.CRUD.Interfaces
 {
-    public interface INewsService : IBaseCRUDService<News>
+    public interface ICommentsService : IBaseCRUDService<Comment>
     {
     }
 }

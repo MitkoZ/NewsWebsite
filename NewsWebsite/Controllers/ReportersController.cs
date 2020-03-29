@@ -10,7 +10,7 @@ using Services.SMTP.Interfaces;
 
 namespace NewsWebsite.Controllers
 {
-    public class ReportersController : BaseController
+    public class ReportersController : BaseViewsController
     {
         private readonly ISMTPService smtpService;
         private readonly IUsersService usersService;

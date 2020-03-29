@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace DataAccess.Entities
@@ -20,5 +21,7 @@ namespace DataAccess.Entities
         public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }
+
+        public virtual ICollection<Comment> Comments { get; set; }
     }
 }

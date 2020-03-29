@@ -7,5 +7,6 @@ namespace DataAccess.Entities
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

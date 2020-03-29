@@ -6,10 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NewsWebsite.ViewModels.News;
 using Services.CRUD.Interfaces;
+using NewsWebsite.Utils;
 
 namespace NewsWebsite.Controllers
 {
-    public class NewsController : BaseController
+    public class NewsController : BaseViewsController
     {
         private readonly INewsService newsService;
 
@@ -55,6 +56,7 @@ namespace NewsWebsite.Controllers
 
             DetailsNewsViewModel detailsNewsViewModel = new DetailsNewsViewModel
             {
+                Id = newsDb.Id,
                 Content = newsDb.Content,
                 Title = newsDb.Title,
                 ReporterName = newsDb.User.UserName,
@@ -90,7 +92,7 @@ namespace NewsWebsite.Controllers
             {
                 Title = createNewsViewModel.Title,
                 Content = createNewsViewModel.Content,
-                UserId = base.GetCurrentUserId()
+                UserId = this.GetCurrentUserId()
             };
 
             bool isSaved = await newsService.SaveAsync(newsDb);

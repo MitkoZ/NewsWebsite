@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using DataAccess;
 using DataAccess.Entities;
 using Microsoft.AspNetCore.Builder;
@@ -69,11 +68,6 @@ namespace NewsWebsite
                 options.SignIn.RequireConfirmedEmail = true;
             });
 
-            services.AddScoped<IUsersRepository, UsersRepository>();
-            services.AddScoped<IUsersService, UsersService>();
-            services.AddScoped<INewsRepository, NewsRepository>();
-            services.AddScoped<INewsService, NewsService>();
-
             services.AddControllersWithViews();
             services.AddLogging(logging =>
             {
@@ -87,7 +81,23 @@ namespace NewsWebsite
             });
 
             ConfigureOptions(services);
+            AddRepositories(services);
+            AddServices(services);
+        }
+
+        private void AddServices(IServiceCollection services)
+        {
+            services.AddScoped<IUsersService, UsersService>();
+            services.AddScoped<INewsService, NewsService>();
+            services.AddScoped<ICommentsService, CommentsService>();
             services.AddSingleton<ISMTPService, SMTPService>();
+        }
+
+        private void AddRepositories(IServiceCollection services)
+        {
+            services.AddScoped<IUsersRepository, UsersRepository>();
+            services.AddScoped<INewsRepository, NewsRepository>();
+            services.AddScoped<ICommentsRepository, CommentsRepository>();
         }
 
         private void ConfigureOptions(IServiceCollection services) // we use this method in order not to make a dependency on the Options framework. (the IOptions<T> wrapper around the options object https://stackoverflow.com/questions/53424593/services-configure-or-services-addsingleton-get (exact answer: https://stackoverflow.com/a/53431790))

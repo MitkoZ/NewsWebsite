@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "bootstrap": "^4.4.1",
+    "jquery-comments": "github:Viima/jquery-comments#168ebf66ca33f16aab672dd5072503bd4333737a",
     "jquery-validation-unobtrusive": "^3.2.11",
     "quill": "^1.3.7"
   },

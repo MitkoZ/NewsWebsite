@@ -60,7 +60,7 @@ namespace Repositories
         public async Task<int> DeleteAsync(string id)
         {
             TEntity entity = await this.dbContext.Set<TEntity>().FindAsync(id);
-            this.dbContext.Remove(entity);
+            entity.IsDeleted = true;
 
             return await this.dbContext.SaveChangesAsync();
         }

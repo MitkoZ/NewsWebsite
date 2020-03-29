@@ -1,6 +1,7 @@
 ﻿using DataAccess.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using DataAccess.Utils;
 
 namespace DataAccess
 {
@@ -16,9 +17,11 @@ namespace DataAccess
             modelBuilder.Entity<News>()
                 .HasIndex(news => news.Title).IsUnique();
 
+            modelBuilder.RemoveCascadeDelete();
             base.OnModelCreating(modelBuilder);
         }
 
         public DbSet<News> News { get; set; }
+        public DbSet<Comment> Comments { get; set; }
     }
 }

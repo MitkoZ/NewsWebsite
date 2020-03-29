@@ -8,7 +8,7 @@ namespace Services.CRUD.Interfaces
 {
     public interface IBaseCRUDService<TEntity> where TEntity : IBaseEntity
     {
-        IQueryable<TEntity> GetAll(Expression<Func<TEntity, bool>> filter = null);
+        IQueryable<TEntity> GetAll(Expression<Func<TEntity, bool>> filter = null, bool isQueryDeletedRecords = false);
         Task<bool> SaveAsync(TEntity entity);
         Task<bool> DeleteAsync(string id);
     }

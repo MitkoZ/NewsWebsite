@@ -1,4 +1,5 @@
 ﻿using DataAccess.Entities.Interfaces;
+using LinqKit;
 using Repositories.Interfaces;
 using Services.CRUD.Interfaces;
 using System;
@@ -18,9 +19,15 @@ namespace Services.CRUD
             this.repository = repository;
         }
 
-        public IQueryable<TEntity> GetAll(Expression<Func<TEntity, bool>> filter = null)
+        public IQueryable<TEntity> GetAll(Expression<Func<TEntity, bool>> filter = null, bool isQueryDeletedRecords = false)
         {
-            return this.repository.GetAll(filter);
+            Expression<Func<TEntity, bool>> isQueryDeletedRecordsFilter = x => x.IsDeleted == isQueryDeletedRecords;
+            if (filter != null)
+            {
+                isQueryDeletedRecordsFilter = isQueryDeletedRecordsFilter.And(filter);
+            }
+
+            return this.repository.GetAll(isQueryDeletedRecordsFilter);
         }
 
         public async Task<bool> SaveAsync(TEntity entity)
