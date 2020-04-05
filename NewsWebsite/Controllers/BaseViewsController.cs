@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using NewsWebsite.Utils;
 using System;
 using System.Collections.Generic;
-using System.Security.Claims;
 
 namespace NewsWebsite.Controllers
 {

@@ -2,7 +2,7 @@
 
 namespace NewsWebsite.ViewModels.Users
 {
-    public class UserViewModel // we intentionally leave password validation rules at the backend by Identity
+    public class RegisterUserViewModel // we intentionally leave password validation rules at the backend by Identity
     {
         [Required]
         public string Username { get; set; }

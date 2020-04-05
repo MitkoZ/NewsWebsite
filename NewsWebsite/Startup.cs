@@ -24,6 +24,8 @@ using Services.CRUD.Interfaces;
 using Services.SMTP;
 using Services.SMTP.DTOs;
 using Services.SMTP.Interfaces;
+using Services.Transactions;
+using Services.Transactions.Interfaces;
 
 namespace NewsWebsite
 {
@@ -83,6 +85,7 @@ namespace NewsWebsite
             ConfigureOptions(services);
             AddRepositories(services);
             AddServices(services);
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
 
         private void AddServices(IServiceCollection services)
@@ -191,6 +194,7 @@ namespace NewsWebsite
                         LockoutEnd = null,
                         LockoutEnabled = false,
                         AccessFailedCount = 0,
+                        IsDeleted = false
                     },
 
                    new User
@@ -209,8 +213,29 @@ namespace NewsWebsite
                        TwoFactorEnabled = false,
                        LockoutEnd = null,
                        LockoutEnabled = false,
-                       AccessFailedCount = 0
-                    }
+                       AccessFailedCount = 0,
+                       IsDeleted = false
+                    },
+
+                   new User
+                   {
+                       Id = "550628a5-a507-474b-a87a-034098469f52",
+                       UserName = "tosho",
+                       NormalizedUserName = "TOSHO",
+                       Email = "tosho@dummyemail.com",
+                       NormalizedEmail = "TOSHO@DUMMYEMAIL.COM",
+                       EmailConfirmed = true,
+                       PasswordHash = "AQAAAAEAACcQAAAAEJgMQjNMey6JTJUiUDn5DctBCdbZRqGzBKnxQ3XH5I15IaihoRSxqrsivCD9jdGW7g==", // In plaintext the password is toshopass
+                       SecurityStamp = "JVUSQ6P3ULZNLAXO65XTLY2BQ76HE7XF",
+                       ConcurrencyStamp = "18247571-266f-4ec4-b7be-70c8424148f7",
+                       PhoneNumber = null,
+                       PhoneNumberConfirmed = true,
+                       TwoFactorEnabled = false,
+                       LockoutEnd = null,
+                       LockoutEnabled = false,
+                       AccessFailedCount = 0,
+                       IsDeleted = false
+                   }
 
                 };
 
@@ -269,6 +294,12 @@ namespace NewsWebsite
                     {
                         UserId = "d3e23cdf-c2bf-4617-b732-aec526a160aa", // pesho UserName
                         RoleId = "164c0c3e-7f24-438f-9708-b7e69c6d2b4a" // Reporter Role
+                    },
+
+                    new IdentityUserRole<string>
+                    {
+                        UserId = "550628a5-a507-474b-a87a-034098469f52", // tosho Username
+                        RoleId = "cf9259d6-a41e-4629-82d5-ea94dad436f1", // NormalUser Role 
                     }
                 };
 

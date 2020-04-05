@@ -7,16 +7,19 @@ using NewsWebsite.ViewModels.Reporters;
 using Services.CRUD.DTOs;
 using Services.CRUD.Interfaces;
 using Services.SMTP.Interfaces;
+using Services.Transactions.Interfaces;
 
 namespace NewsWebsite.Controllers
 {
     public class ReportersController : BaseViewsController
     {
+        private readonly IUnitOfWork unitOfWork;
         private readonly ISMTPService smtpService;
         private readonly IUsersService usersService;
 
-        public ReportersController(ILogger<ReportersController> logger, IUsersService usersService, ISMTPService smtpService) : base(logger)
+        public ReportersController(IUnitOfWork unitOfWork, ILogger<ReportersController> logger, IUsersService usersService, ISMTPService smtpService) : base(logger)
         {
+            this.unitOfWork = unitOfWork;
             this.smtpService = smtpService;
             this.usersService = usersService;
         }

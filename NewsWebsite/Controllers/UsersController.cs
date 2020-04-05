@@ -8,16 +8,19 @@ using Services.CRUD.DTOs;
 using NewsWebsite.Utils;
 using Microsoft.Extensions.Logging;
 using Services.SMTP.Interfaces;
+using Services.Transactions.Interfaces;
 
 namespace NewsWebsite.Controllers
 {
     public class UsersController : BaseViewsController
     {
+        private readonly IUnitOfWork unitOfWork;
         private readonly IUsersService usersService;
         private readonly ISMTPService smtpService;
 
-        public UsersController(ILogger<BaseViewsController> logger, IUsersService usersService, ISMTPService smtpService) : base(logger)
+        public UsersController(IUnitOfWork unitOfWork, ILogger<BaseViewsController> logger, IUsersService usersService, ISMTPService smtpService) : base(logger)
         {
+            this.unitOfWork = unitOfWork;
             this.usersService = usersService;
             this.smtpService = smtpService;
         }
@@ -30,7 +33,7 @@ namespace NewsWebsite.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(UserViewModel userViewModel)
+        public async Task<IActionResult> Register(RegisterUserViewModel userViewModel)
         {
             try
             {

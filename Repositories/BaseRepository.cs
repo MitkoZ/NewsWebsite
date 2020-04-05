@@ -43,7 +43,7 @@ namespace Repositories
             this.dbContext.Set<TEntity>().Update(entity);
         }
 
-        public async Task<int> SaveAsync(TEntity entity)
+        public void Save(TEntity entity)
         {
             if (entity.Id == null)
             {
@@ -53,16 +53,12 @@ namespace Repositories
             {
                 this.Update(entity);
             }
-
-            return await dbContext.SaveChangesAsync();
         }
 
-        public async Task<int> DeleteAsync(string id)
+        public async Task DeleteAsync(string id)
         {
             TEntity entity = await this.dbContext.Set<TEntity>().FindAsync(id);
             entity.IsDeleted = true;
-
-            return await this.dbContext.SaveChangesAsync();
         }
     }
 }

@@ -9,7 +9,7 @@
 <script>
     $(function () {
 
-        var saveComment = function (data) {
+        let convertPingedUserIdsToText = function (data) {
             debugger;
             // Convert pings to human readable format
             if (data.pings) {
@@ -22,6 +22,32 @@
 
             return data;
         }
+
+        let _fieldMappings = { // don't remap the fullname because then it doesn't work
+            id: 'id',
+            parent: 'parentId',
+            created: 'createdAt',
+            modified: 'updatedAt',
+            content: 'content',
+            file: 'file',
+            fileURL: 'file_url',
+            fileMimeType: 'file_mime_type',
+            pings: 'pings',
+            creator: 'creator',
+            fullname: 'fullname',
+            profileURL: 'profile_url',
+            profilePictureURL: 'profile_picture_url',
+            isNew: 'is_new',
+            createdByAdmin: 'created_by_admin',
+            createdByCurrentUser: 'createdByCurrentUser',
+            upvoteCount: 'upvoteCount',
+            userHasUpvoted: 'userHasUpvoted'
+        };
+
+       let removeDateTimeFields = function (commentJSON) {
+           delete commentJSON[_fieldMappings["created"]];
+           delete commentJSON[_fieldMappings["modified"]];
+       }
 
        let printErrorsToConsole = function (jqXHR, textStatus, errorThrown) {
             console.log(JSON.stringify(jqXHR), textStatus, errorThrown);
@@ -46,26 +72,7 @@
                 });
             },
 
-            fieldMappings: { // don't remap the fullname because then it doesn't work
-                id: 'id',
-                parent: 'parentId',
-                created: 'createdAt',
-                modified: 'updatedAt',
-                content: 'content',
-                file: 'file',
-                fileURL: 'file_url',
-                fileMimeType: 'file_mime_type',
-                pings: 'pings',
-                creator: 'creator',
-                fullname: 'fullname',
-                profileURL: 'profile_url',
-                profilePictureURL: 'profile_picture_url',
-                isNew: 'is_new',
-                createdByAdmin: 'created_by_admin',
-                createdByCurrentUser: 'createdByCurrentUser',
-                upvoteCount: 'upvoteCount',
-                userHasUpvoted: 'userHasUpvoted'
-            },
+            fieldMappings: _fieldMappings,
 
             // They use the REST api naming convetion
             postComment: function (commentJSON, success, error) {
@@ -75,7 +82,7 @@
                     url: '/api/Comments/@Model',
                     data: JSON.stringify(commentJSON),
                     success: function (comment) {
-                        success(saveComment(comment))
+                        success(convertPingedUserIdsToText(comment))
                     },
                     error: printErrorsToConsole
                 });
@@ -83,15 +90,16 @@
 
             putComment: function (commentJSON, success, error) {
                 debugger;
+                removeDateTimeFields(commentJSON);
                 $.ajax({
                     contentType: "application/json;charset=utf-8",
                     type: 'put',
-                    url: '@Url.Action("UpdateComment")/' + commentJSON.id,
+                    url: '/api/Comments/' + commentJSON.id,
                     data: JSON.stringify(commentJSON),
                     success: function (comment) {
-                        success(saveComment(comment))
+                        success(convertPingedUserIdsToText(comment))
                     },
-                    error: error
+                    error: printErrorsToConsole
                 });
             },
 
@@ -99,7 +107,7 @@
                 debugger;
                 $.ajax({
                     type: 'delete',
-                    url: '@Url.Action("Delete")/' + commentJSON.id,
+                    url: '/api/Comments/' + commentJSON.id,
                     success: success,
                     error: error
                 });
@@ -135,11 +143,11 @@
                 debugger;
                 $.ajax({
                     type: 'get',
-                    url: '@Url.Action("GetUsers")/?searchTerm=' + term,
+                    url: '/api/users/' + term,
                     success: function (userArray) {
                         success(userArray)
                     },
-                    error: error
+                    error: printErrorsToConsole
                 });
             }
 

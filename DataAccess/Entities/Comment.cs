@@ -6,8 +6,6 @@ namespace DataAccess.Entities
     public class Comment : BaseEntity
     {
         public string ParentId { get; set; }
-        //public string Created { get; set; }
-        //public string Modified { get; set; }
 
         [Required]
         public string Content { get; set; }

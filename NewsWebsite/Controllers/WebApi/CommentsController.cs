@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DataAccess;
 using DataAccess.Entities;
 using Services.CRUD.Interfaces;
-using NewsWebsite.ViewModels;
 using NewsWebsite.ViewModels.News.Comments;
-using System.Security.Claims;
 using NewsWebsite.Utils;
-using System.Diagnostics;
+using Services.Transactions.Interfaces;
+using NewsWebsite.ViewModels.Users;
 
 namespace NewsWebsite.Controllers.WebApi
 {
@@ -20,42 +16,50 @@ namespace NewsWebsite.Controllers.WebApi
     [ApiController]
     public class CommentsController : ControllerBase
     {
+        private readonly IUnitOfWork unitOfWork;
         private readonly ICommentsService commentsService;
         private readonly IUsersService userService;
 
-        public CommentsController(ICommentsService commentsService, IUsersService usersService)
+        public CommentsController(IUnitOfWork unitOfWork, ICommentsService commentsService, IUsersService usersService)
         {
+            this.unitOfWork = unitOfWork;
             this.commentsService = commentsService;
             this.userService = usersService;
         }
 
         [HttpGet("{newsId}")]
-        public async Task<ActionResult<List<EditCommentViewModel>>> GetComments(string newsId)
+        public async Task<ActionResult<List<GetCommentViewModel>>> GetCommentsAsync([FromRoute]string newsId)
         {
             List<Comment> commentsDb = await commentsService.GetAll(x => x.NewsId == newsId)
                                                             .ToListAsync();
 
             if (commentsDb.Count == 0)
             {
-                return Ok(new List<EditCommentViewModel>()); // jquery-comments expects an empty collection
+                return Ok(new List<GetCommentViewModel>()); // jquery-comments expects an empty collection
             }
 
-            List<EditCommentViewModel> commentViewModels = new List<EditCommentViewModel>();
+            List<GetCommentViewModel> commentViewModels = new List<GetCommentViewModel>();
 
             foreach (Comment commentDb in commentsDb)
             {
-                commentViewModels.Add(new EditCommentViewModel //TODO: do we really need last modified date and created date???
+                commentViewModels.Add(new GetCommentViewModel //TODO: do we really need last modified date and created date???
                 {
                     Id = commentDb.Id,
                     Content = commentDb.Content,
                     Fullname = commentDb.User.UserName,
                     ParentId = commentDb.ParentId,
                     CreatedAt = commentDb.CreatedAt,
-                    UpdatedAt = commentDb.UpdatedAt
+                    UpdatedAt = commentDb.UpdatedAt,
+                    CreatedByCurrentUser = this.IsCreatedByCurrentUser(commentDb.UserId)
                 });
             }
 
             return Ok(commentViewModels);
+        }
+
+        private bool IsCreatedByCurrentUser(string userId)
+        {
+            return this.GetCurrentUserId() == userId ? true : false;
         }
 
         //[HttpGet("{id}")]
@@ -80,18 +84,70 @@ namespace NewsWebsite.Controllers.WebApi
         //}
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutComment(string id, Comment comment)
+        public async Task<ActionResult<GetCommentViewModel>> PutComment(PutCommentViewModel putCommentViewModel)
         {
-            if (id != comment.Id)
-            {
-                return BadRequest();
-            }
 
-            Comment commentDb = await commentsService.GetAll(x => x.Id == id)
+            Comment commentDb = await commentsService.GetAll(x => x.Id == putCommentViewModel.Id)
                                                      .FirstOrDefaultAsync();
 
-            bool isSaved = await commentsService.SaveAsync(commentDb);
+            commentDb.Content = putCommentViewModel.Content;
+            this.commentsService.Save(commentDb);
+            bool isSaved = await unitOfWork.CommitAsync();
+
             if (isSaved)
+            {
+                GetCommentViewModel getCommentViewModel = new GetCommentViewModel();
+                getCommentViewModel.Id = commentDb.Id;
+                getCommentViewModel.Content = commentDb.Content;
+                getCommentViewModel.CreatedAt = commentDb.CreatedAt;
+                getCommentViewModel.UpdatedAt = commentDb.UpdatedAt;
+                getCommentViewModel.CreatedByCurrentUser = this.IsCreatedByCurrentUser(commentDb.UserId);
+                return getCommentViewModel;
+            }
+
+            return BadRequest();
+        }
+
+        [HttpPost("{newsId}")]
+        public async Task<ActionResult<GetCommentViewModel>> PostComment([FromRoute]string newsId, PostCommentViewModel postCommentViewModel)
+        {
+            Comment commentDb = new Comment
+            {
+                NewsId = newsId,
+                Content = postCommentViewModel.Content,
+                ParentId = postCommentViewModel.ParentId
+            };
+
+            User currentUserDb = await this.userService.GetAll(x => x.Id == this.GetCurrentUserId()).FirstOrDefaultAsync();
+            currentUserDb.Comments.Add(commentDb);
+
+            commentsService.Save(commentDb);
+            bool isSaved = await this.unitOfWork.CommitAsync();
+
+            if (isSaved)
+            {
+                GetCommentViewModel commentViewModel = new GetCommentViewModel
+                {
+                    Id = commentDb.Id,
+                    Content = commentDb.Content,
+                    ParentId = commentDb.ParentId,
+                    Fullname = commentDb.User.UserName,
+                    CreatedByCurrentUser = this.IsCreatedByCurrentUser(commentDb.UserId)
+                };
+
+                return CreatedAtAction(nameof(GetCommentsAsync), new { id = commentDb.Id }, commentViewModel);// TODO: should return getCommentViewModel, remove created at action
+            }
+
+            return BadRequest();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Comment>> DeleteComment([FromRoute]string id)
+        {
+            await this.commentsService.DeleteAsync(id);
+            bool isDeleted = await this.unitOfWork.CommitAsync();
+
+            if (isDeleted)
             {
                 return NoContent();
             }
@@ -99,51 +155,24 @@ namespace NewsWebsite.Controllers.WebApi
             return BadRequest();
         }
 
-        [HttpPost("{newsId}")]
-        public async Task<ActionResult<Comment>> PostComment([FromRoute]string newsId, CreateCommentViewModel createCommentViewModel)
+        [HttpGet("/api/users/{username}")] // Please note that the "/" part of the action attribute overrides the controller's attribute, so it does not append it's template
+        public async Task<ActionResult<List<GetUserViewModel>>> GetUsersByUsernameFilter([FromRoute]string username)
         {
-            Comment commentDb = new Comment
-            {
-                NewsId = newsId,
-                Content = createCommentViewModel.Content,
-                ParentId = createCommentViewModel.ParentId
-            };
+            List<GetUserViewModel> usersViewModels = new List<GetUserViewModel>();
 
-            User currentUserDb = await this.userService.GetAll(x => x.Id == this.GetCurrentUserId()).FirstOrDefaultAsync();
-            currentUserDb.Comments.Add(commentDb);
+            List<User> usersDb = await this.userService.GetAll(userDb => userDb.UserName.ToLower().Contains(username.ToLower()))
+                                                       .ToListAsync();
 
-            bool isSaved = await commentsService.SaveAsync(commentDb);
-
-            if (isSaved)
-            {
-                EditCommentViewModel commentViewModel = new EditCommentViewModel //TODO: do we really need last modified date and created date???
+            usersDb.ForEach(userDb => usersViewModels.Add(
+                new GetUserViewModel
                 {
-                    Id = commentDb.Id,
-                    Content = commentDb.Content,
-                    ParentId = commentDb.ParentId,
-                    Fullname = commentDb.User.UserName
-                };
+                    Fullname = userDb.UserName,
+                    Email = userDb.Email
+                }
+             )
+            );
 
-                return CreatedAtAction(nameof(GetComments), new { id = commentDb.Id }, commentViewModel);// TODO: should return getCommentViewModel, remove created at action
-            }
-
-            return BadRequest();
+            return usersViewModels;
         }
-
-        //[HttpDelete("{id}")]
-        //public async Task<ActionResult<Comment>> DeleteComment(string id)
-        //{
-        //    var comment = await _context.Comments.FindAsync(id);
-        //    if (comment == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    _context.Comments.Remove(comment);
-        //    await _context.SaveChangesAsync();
-
-        //    return comment;
-        //}
-
     }
 }

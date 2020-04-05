@@ -2,7 +2,7 @@
 
 namespace NewsWebsite.ViewModels.News.Comments
 {
-    public class CreateCommentViewModel
+    public class PostCommentViewModel
     {
         public string ParentId { get; set; }
         public DateTime CreatedAt { get; set; }

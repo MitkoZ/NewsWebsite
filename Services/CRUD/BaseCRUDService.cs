@@ -12,7 +12,7 @@ namespace Services.CRUD
     public abstract class BaseCRUDService<TEntity> : IBaseCRUDService<TEntity>
         where TEntity : IBaseEntity
     {
-        private readonly IBaseRepository<TEntity> repository;
+        protected readonly IBaseRepository<TEntity> repository;
 
         public BaseCRUDService(IBaseRepository<TEntity> repository)
         {
@@ -30,21 +30,15 @@ namespace Services.CRUD
             return this.repository.GetAll(isQueryDeletedRecordsFilter);
         }
 
-        public async Task<bool> SaveAsync(TEntity entity)
+        public void Save(TEntity entity)
         {
-            int savedEntities = await this.repository.SaveAsync(entity);
-
-            if (savedEntities > 0)
-            {
-                return true;
-            }
-
-            return false;
+            this.repository.Save(entity);
         }
 
-        public async Task<bool> DeleteAsync(string id)
+        public virtual async Task DeleteAsync(string id)
         {
-            return await this.repository.DeleteAsync(id) > 0;
+            await this.repository.DeleteAsync(id);
         }
+
     }
 }
