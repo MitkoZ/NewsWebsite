@@ -45,17 +45,67 @@ namespace NewsWebsite.Controllers.WebApi
                 commentViewModels.Add(new GetCommentViewModel //TODO: do we really need last modified date and created date???
                 {
                     Id = commentDb.Id,
-                    Content = commentDb.Content,
+                    Content = this.ReplaceUserIdsWithUsernames(commentDb.Content),
                     Fullname = commentDb.User.UserName,
                     ParentId = commentDb.ParentId,
                     CreatedAt = commentDb.CreatedAt,
                     UpdatedAt = commentDb.UpdatedAt,
-                    CreatedByCurrentUser = this.IsCreatedByCurrentUser(commentDb.UserId)
+                    Creator = commentDb.UserId,
+                    CreatedByCurrentUser = this.IsCreatedByCurrentUser(commentDb.UserId),
+                    Pings = GetPingedUsers(commentDb.Content)
                 });
             }
 
             return Ok(commentViewModels);
         }
+
+        private Dictionary<string, string> GetPingedUsers(string content)
+        {
+            Dictionary<string, string> idsUsersDictionary = new Dictionary<string, string>();
+            int idLength = this.userService.GetAll().FirstOrDefault().Id.Length; // we must have at least one record in the database (since the database provider is responsible for the id generation scheme)
+            List<string> pingedUsersIds = new List<string>();
+
+            for (int i = 0; i < content.Length; i++)
+            {
+
+                char character = content[i];
+                if (character == '@')
+                {
+                    string userId = content.Substring(i + 1, idLength);
+                    pingedUsersIds.Add(userId);
+                }
+            }
+
+            List<GetUserViewModel> userViewModels = new List<GetUserViewModel>();
+
+            pingedUsersIds.ForEach(userId =>
+            {
+                User userDb = this.userService.GetAll(userDb => userDb.Id == userId).FirstOrDefault();
+
+                idsUsersDictionary.Add(userDb.Id, userDb.UserName);
+            });
+
+
+            return idsUsersDictionary;
+        }
+
+        private string ReplaceUserIdsWithUsernames(string content)
+        {
+            List<User> usersDb = this.userService.GetAll()
+                                                 .ToList();
+
+            foreach (User userDb in usersDb)
+            {
+                content = content.Replace("@" + userDb.Id, "@" + userDb.UserName);
+            }
+
+            return content;
+        }
+
+        //private string GetPings(string content)
+        //{
+        //    return content.Split('@').ToList().ForEach(userId => this.userService.GetAll().FirstOrDefault(user => user.Id == userId));
+        //}
 
         private bool IsCreatedByCurrentUser(string userId)
         {
@@ -96,12 +146,16 @@ namespace NewsWebsite.Controllers.WebApi
 
             if (isSaved)
             {
-                GetCommentViewModel getCommentViewModel = new GetCommentViewModel();
-                getCommentViewModel.Id = commentDb.Id;
-                getCommentViewModel.Content = commentDb.Content;
-                getCommentViewModel.CreatedAt = commentDb.CreatedAt;
-                getCommentViewModel.UpdatedAt = commentDb.UpdatedAt;
-                getCommentViewModel.CreatedByCurrentUser = this.IsCreatedByCurrentUser(commentDb.UserId);
+                GetCommentViewModel getCommentViewModel = new GetCommentViewModel
+                {
+                    Id = commentDb.Id,
+                    Content = this.ReplaceUserIdsWithUsernames(commentDb.Content),
+                    CreatedAt = commentDb.CreatedAt,
+                    UpdatedAt = commentDb.UpdatedAt,
+                    Creator = commentDb.UserId,
+                    CreatedByCurrentUser = this.IsCreatedByCurrentUser(commentDb.UserId),
+                    Pings = GetPingedUsers(commentDb.Content)
+                };
                 return getCommentViewModel;
             }
 
@@ -129,10 +183,14 @@ namespace NewsWebsite.Controllers.WebApi
                 GetCommentViewModel commentViewModel = new GetCommentViewModel
                 {
                     Id = commentDb.Id,
-                    Content = commentDb.Content,
+                    Content = this.ReplaceUserIdsWithUsernames(commentDb.Content),
                     ParentId = commentDb.ParentId,
                     Fullname = commentDb.User.UserName,
-                    CreatedByCurrentUser = this.IsCreatedByCurrentUser(commentDb.UserId)
+                    CreatedAt = commentDb.CreatedAt,
+                    UpdatedAt = commentDb.UpdatedAt,
+                    Creator = commentDb.UserId,
+                    CreatedByCurrentUser = this.IsCreatedByCurrentUser(commentDb.UserId),
+                    Pings = GetPingedUsers(commentDb.Content)
                 };
 
                 return CreatedAtAction(nameof(GetCommentsAsync), new { id = commentDb.Id }, commentViewModel);// TODO: should return getCommentViewModel, remove created at action
@@ -156,7 +214,7 @@ namespace NewsWebsite.Controllers.WebApi
         }
 
         [HttpGet("/api/users/{username}")] // Please note that the "/" part of the action attribute overrides the controller's attribute, so it does not append it's template
-        public async Task<ActionResult<List<GetUserViewModel>>> GetUsersByUsernameFilter([FromRoute]string username)
+        public async Task<ActionResult<List<GetUserViewModel>>> GetUsersByUsernameFilter([FromRoute]string username)//TODO: should we include the newsId, so we can show ping for users that have only already commented the current news?
         {
             List<GetUserViewModel> usersViewModels = new List<GetUserViewModel>();
 
@@ -166,6 +224,7 @@ namespace NewsWebsite.Controllers.WebApi
             usersDb.ForEach(userDb => usersViewModels.Add(
                 new GetUserViewModel
                 {
+                    Id = userDb.Id,
                     Fullname = userDb.UserName,
                     Email = userDb.Email
                 }
