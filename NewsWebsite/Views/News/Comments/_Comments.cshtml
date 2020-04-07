@@ -141,6 +141,11 @@
 
             searchUsers: function (term, success, error) {
                 debugger;
+                if (!term) {
+                    success([]); // we need to pass an empty array when there are no results or the searchUsers callback will stop getting called the next times
+                    return;
+                }
+
                 $.ajax({
                     type: 'get',
                     url: '/api/users/' + term,
