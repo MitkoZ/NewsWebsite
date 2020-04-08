@@ -9,6 +9,7 @@ using NewsWebsite.ViewModels.News.Comments;
 using NewsWebsite.Utils;
 using Services.Transactions.Interfaces;
 using NewsWebsite.ViewModels.Users;
+using System;
 
 namespace NewsWebsite.Controllers.WebApi
 {
@@ -62,17 +63,23 @@ namespace NewsWebsite.Controllers.WebApi
         private Dictionary<string, string> GetPingedUsers(string content)
         {
             Dictionary<string, string> idsUsersDictionary = new Dictionary<string, string>();
-            int idLength = this.userService.GetAll().FirstOrDefault().Id.Length; // we must have at least one record in the database (since the database provider is responsible for the id generation scheme)
+            int idLength = Guid.NewGuid().ToString().Length;
             List<string> pingedUsersIds = new List<string>();
+
 
             for (int i = 0; i < content.Length; i++)
             {
-
                 char character = content[i];
-                if (character == '@')
+
+                int charactersAmountAfterPingCharacter = content.Length - (i + 1);
+                if (character == '@' && charactersAmountAfterPingCharacter >= idLength)
                 {
-                    string userId = content.Substring(i + 1, idLength);
-                    pingedUsersIds.Add(userId);
+                    string probableGuid = content.Substring(i + 1, idLength);
+                    if (Guid.TryParse(probableGuid, out Guid sampleGuid))
+                    {
+                        string userId = probableGuid;
+                        pingedUsersIds.Add(userId);
+                    }
                 }
             }
 
@@ -86,7 +93,7 @@ namespace NewsWebsite.Controllers.WebApi
                 {
                     idsUsersDictionary.Add(userDb.Id, userDb.UserName);
                 }
-                
+
             });
 
 
