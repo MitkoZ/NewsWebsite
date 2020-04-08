@@ -82,7 +82,11 @@ namespace NewsWebsite.Controllers.WebApi
             {
                 User userDb = this.userService.GetAll(userDb => userDb.Id == userId).FirstOrDefault();
 
-                idsUsersDictionary.Add(userDb.Id, userDb.UserName);
+                if (!idsUsersDictionary.ContainsKey(userDb.Id))
+                {
+                    idsUsersDictionary.Add(userDb.Id, userDb.UserName);
+                }
+                
             });
 
 
