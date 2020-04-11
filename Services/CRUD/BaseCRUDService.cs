@@ -1,4 +1,4 @@
-﻿using DataAccess.Entities.Interfaces;
+﻿using DataAccess.Entities.Abstractions.Interfaces;
 using LinqKit;
 using Repositories.Interfaces;
 using Services.CRUD.Interfaces;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Services.CRUD
 {
     public abstract class BaseCRUDService<TEntity> : IBaseCRUDService<TEntity>
-        where TEntity : IBaseEntity
+        where TEntity : IBaseNormalEntity
     {
         protected readonly IBaseRepository<TEntity> repository;
 

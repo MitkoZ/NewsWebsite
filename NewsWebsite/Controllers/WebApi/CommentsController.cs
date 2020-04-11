@@ -9,7 +9,6 @@ using NewsWebsite.ViewModels.News.Comments;
 using NewsWebsite.Utils;
 using Services.Transactions.Interfaces;
 using NewsWebsite.ViewModels.Users;
-using System;
 
 namespace NewsWebsite.Controllers.WebApi
 {
@@ -28,6 +27,24 @@ namespace NewsWebsite.Controllers.WebApi
             this.userService = usersService;
         }
 
+        private async Task<GetCommentViewModel> MapToGetCommentViewModelAsync(Comment commentDb)
+        {
+            return new GetCommentViewModel
+            {
+                Id = commentDb.Id,
+                Content = await this.commentsService.ReplaceUserIdsWithUsernames(commentDb.Content),
+                ParentId = commentDb.ParentId,
+                Fullname = commentDb.User.UserName,
+                CreatedAt = commentDb.CreatedAt,
+                UpdatedAt = commentDb.UpdatedAt,
+                Creator = commentDb.UserId,
+                CreatedByCurrentUser = this.IsCreatedByCurrentUser(commentDb.UserId),
+                Pings = this.commentsService.GetPingedUsers(commentDb.Content),
+                UpvoteCount = commentsService.GetVotes(commentDb).Count,
+                UserHasUpvoted = commentsService.GetVotes(commentDb, vote => vote.UserId == this.GetCurrentUserId()).Any()
+            };
+        }
+
         [HttpGet("{newsId}")]
         public async Task<ActionResult<List<GetCommentViewModel>>> GetCommentsAsync([FromRoute]string newsId)
         {
@@ -43,74 +60,10 @@ namespace NewsWebsite.Controllers.WebApi
 
             foreach (Comment commentDb in commentsDb)
             {
-                commentViewModels.Add(new GetCommentViewModel //TODO: do we really need last modified date and created date???
-                {
-                    Id = commentDb.Id,
-                    Content = this.ReplaceUserIdsWithUsernames(commentDb.Content),
-                    Fullname = commentDb.User.UserName,
-                    ParentId = commentDb.ParentId,
-                    CreatedAt = commentDb.CreatedAt,
-                    UpdatedAt = commentDb.UpdatedAt,
-                    Creator = commentDb.UserId,
-                    CreatedByCurrentUser = this.IsCreatedByCurrentUser(commentDb.UserId),
-                    Pings = GetPingedUsers(commentDb.Content)
-                });
+                commentViewModels.Add(await this.MapToGetCommentViewModelAsync(commentDb)); //TODO: do we really need last modified date and created date??? TODO: use MapToGetCommentViewModel
             }
 
             return Ok(commentViewModels);
-        }
-
-        private Dictionary<string, string> GetPingedUsers(string content)
-        {
-            Dictionary<string, string> idsUsersDictionary = new Dictionary<string, string>();
-            int idLength = Guid.NewGuid().ToString().Length;
-            List<string> pingedUsersIds = new List<string>();
-
-
-            for (int i = 0; i < content.Length; i++)
-            {
-                char character = content[i];
-
-                int charactersAmountAfterPingCharacter = content.Length - (i + 1);
-                if (character == '@' && charactersAmountAfterPingCharacter >= idLength)
-                {
-                    string probableGuid = content.Substring(i + 1, idLength);
-                    if (Guid.TryParse(probableGuid, out Guid sampleGuid))
-                    {
-                        string userId = probableGuid;
-                        pingedUsersIds.Add(userId);
-                    }
-                }
-            }
-
-            List<GetUserViewModel> userViewModels = new List<GetUserViewModel>();
-
-            pingedUsersIds.ForEach(userId =>
-            {
-                User userDb = this.userService.GetAll(userDb => userDb.Id == userId).FirstOrDefault();
-
-                if (!idsUsersDictionary.ContainsKey(userDb.Id))
-                {
-                    idsUsersDictionary.Add(userDb.Id, userDb.UserName);
-                }
-
-            });
-
-
-            return idsUsersDictionary;
-        }
-
-        private string ReplaceUserIdsWithUsernames(string content)
-        {
-            List<User> usersDb = this.userService.GetAll()
-                                                 .ToList();
-
-            foreach (User userDb in usersDb)
-            {
-                content = content.Replace("@" + userDb.Id, "@" + userDb.UserName);
-            }
-
-            return content;
         }
 
         //private string GetPings(string content)
@@ -157,16 +110,7 @@ namespace NewsWebsite.Controllers.WebApi
 
             if (isSaved)
             {
-                GetCommentViewModel getCommentViewModel = new GetCommentViewModel
-                {
-                    Id = commentDb.Id,
-                    Content = this.ReplaceUserIdsWithUsernames(commentDb.Content),
-                    CreatedAt = commentDb.CreatedAt,
-                    UpdatedAt = commentDb.UpdatedAt,
-                    Creator = commentDb.UserId,
-                    CreatedByCurrentUser = this.IsCreatedByCurrentUser(commentDb.UserId),
-                    Pings = GetPingedUsers(commentDb.Content)
-                };
+                GetCommentViewModel getCommentViewModel = await this.MapToGetCommentViewModelAsync(commentDb);
                 return getCommentViewModel;
             }
 
@@ -183,7 +127,8 @@ namespace NewsWebsite.Controllers.WebApi
                 ParentId = postCommentViewModel.ParentId
             };
 
-            User currentUserDb = await this.userService.GetAll(x => x.Id == this.GetCurrentUserId()).FirstOrDefaultAsync();
+            User currentUserDb = await this.userService.GetAll(x => x.Id == this.GetCurrentUserId())
+                                                        .FirstOrDefaultAsync();
             currentUserDb.Comments.Add(commentDb);
 
             commentsService.Save(commentDb);
@@ -191,18 +136,7 @@ namespace NewsWebsite.Controllers.WebApi
 
             if (isSaved)
             {
-                GetCommentViewModel commentViewModel = new GetCommentViewModel
-                {
-                    Id = commentDb.Id,
-                    Content = this.ReplaceUserIdsWithUsernames(commentDb.Content),
-                    ParentId = commentDb.ParentId,
-                    Fullname = commentDb.User.UserName,
-                    CreatedAt = commentDb.CreatedAt,
-                    UpdatedAt = commentDb.UpdatedAt,
-                    Creator = commentDb.UserId,
-                    CreatedByCurrentUser = this.IsCreatedByCurrentUser(commentDb.UserId),
-                    Pings = GetPingedUsers(commentDb.Content)
-                };
+                GetCommentViewModel commentViewModel = await this.MapToGetCommentViewModelAsync(commentDb);
 
                 return CreatedAtAction(nameof(GetCommentsAsync), new { id = commentDb.Id }, commentViewModel);// TODO: should return getCommentViewModel, remove created at action
             }
@@ -219,6 +153,58 @@ namespace NewsWebsite.Controllers.WebApi
             if (isDeleted)
             {
                 return NoContent();
+            }
+
+            return BadRequest();
+        }
+
+        [HttpPost("{id}/upvote")]
+        public async Task<ActionResult<GetCommentViewModel>> UpvoteAsync([FromRoute] string id)
+        {
+            Comment commentDb = await this.commentsService.GetAll(x => x.Id == id)
+                                                          .FirstOrDefaultAsync();
+            if (commentDb == null)
+            {
+                return NotFound();
+            }
+
+            if (this.commentsService.IsUserVotedForComment(this.GetCurrentUserId(), commentDb)) // this user has already votes for the current comment
+            {
+                return BadRequest();
+            }
+
+            commentsService.SaveVote(commentDb, new Vote { UserId = this.GetCurrentUserId(), CommentId = id });
+            bool isSaved = await unitOfWork.CommitAsync();
+            if (isSaved)
+            {
+                GetCommentViewModel getCommentViewModel = await this.MapToGetCommentViewModelAsync(commentDb);
+                return Ok(getCommentViewModel);
+            }
+
+            return BadRequest();
+        }
+
+        [HttpDelete("{id}/downvote")]
+        public async Task<ActionResult<GetCommentViewModel>> DownvoteAsync([FromRoute] string id)
+        {
+            Comment commentDb = await this.commentsService.GetAll(x => x.Id == id)
+                                                          .FirstOrDefaultAsync();
+            if (commentDb == null)
+            {
+                return NotFound();
+            }
+
+            if (this.commentsService.IsUserVotedForComment(this.GetCurrentUserId(), commentDb))
+            {
+                Vote currentVote = commentDb.Votes.FirstOrDefault(vote => vote.UserId == this.GetCurrentUserId());
+                this.commentsService.DeleteVote(currentVote);
+            }
+
+            bool isSaved = await unitOfWork.CommitAsync();
+            if (isSaved)
+            {
+                GetCommentViewModel getCommentViewModel = await this.MapToGetCommentViewModelAsync(commentDb);
+                return Ok(getCommentViewModel);
             }
 
             return BadRequest();

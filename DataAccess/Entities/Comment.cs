@@ -1,16 +1,16 @@
-﻿using System;
+﻿using DataAccess.Entities.Abstractions.Classes;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace DataAccess.Entities
 {
-    public class Comment : BaseEntity
+    public class Comment : BaseNormalEntity
     {
         public string ParentId { get; set; }
 
         [Required]
         public string Content { get; set; }
-        //public object Pings { get; set; } //TODO: do we really need this property? (it only keeps which users you pinged, but they are also contained in the content)
-        public int UpvoteCount { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }
@@ -24,5 +24,12 @@ namespace DataAccess.Entities
         public string NewsId { get; set; }
 
         public virtual News News { get; set; }
+
+        public virtual List<Vote> Votes { get; set; }
+
+        public Comment()
+        {
+            this.Votes = new List<Vote>();
+        }
     }
 }

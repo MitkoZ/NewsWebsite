@@ -58,6 +58,7 @@
             maxRepliesVisible: 0, // We want always to have the View All replies if a comment has a subcomment
             enableDeletingCommentWithReplies: true,
             enablePinging: true,
+            enableUpvoting: true,
 
             getComments: function (success, error) {
                 debugger;
@@ -118,7 +119,7 @@
                 if (commentJSON.userHasUpvoted) { // user wants to upvote
                     $.ajax({
                         type: 'post',
-                        url: '@Url.Action("UpvoteForComment")/' + commentJSON.id,
+                        url: '/api/Comments/' + commentJSON.id + '/upvote',
                         data: {
                             comment: commentJSON.id
                         },
@@ -130,7 +131,7 @@
                 } else { // user wants to remove his vote
                     $.ajax({
                         type: 'delete',
-                        url: '@Url.Action("DeleteCommentVote")/' + commentJSON.id,
+                        url: '/api/Comments/' + commentJSON.id + '/downvote',
                         success: function () {
                             success(commentJSON)
                         },

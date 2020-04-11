@@ -235,6 +235,25 @@ namespace NewsWebsite
                        LockoutEnabled = false,
                        AccessFailedCount = 0,
                        IsDeleted = false
+                   },
+
+                   new User
+                   {
+                       Id = "7a5e4dee-c591-4207-8e06-61fcea628ade",
+                       UserName = "gosho",
+                       NormalizedUserName = "GOSHO",
+                       Email = "GOSHO@DUMMYEMAIL.COM",
+                       EmailConfirmed = true,
+                       PasswordHash = "AQAAAAEAACcQAAAAEJPLlpFrJv97Z9yfdJpobY6kfD7FLvXFrDBJdhpg3Fm7CsXL0WL2PcARoh7rkWH4aA==",
+                       SecurityStamp = "5G556U55RWAWDUXFQTG3Y4RIJJCYUEOH",
+                       ConcurrencyStamp = "e8cfb6cd-2fac-41bb-87e4-7df6070557e1",
+                       PhoneNumber = null,
+                       PhoneNumberConfirmed = true,
+                       TwoFactorEnabled = false,
+                       LockoutEnd = null,
+                       LockoutEnabled = false,
+                       AccessFailedCount = 0,
+                       IsDeleted = false
                    }
 
                 };
@@ -298,8 +317,14 @@ namespace NewsWebsite
 
                     new IdentityUserRole<string>
                     {
-                        UserId = "550628a5-a507-474b-a87a-034098469f52", // tosho Username
+                        UserId = "550628a5-a507-474b-a87a-034098469f52", // tosho UserName
                         RoleId = "cf9259d6-a41e-4629-82d5-ea94dad436f1", // NormalUser Role 
+                    },
+
+                    new IdentityUserRole<string>
+                    {
+                        UserId = "7a5e4dee-c591-4207-8e06-61fcea628ade", // gosho UserName
+                        RoleId = "cf9259d6-a41e-4629-82d5-ea94dad436f1" // NormalUser Role
                     }
                 };
 
@@ -362,6 +387,90 @@ namespace NewsWebsite
                 };
 
                 newsDbContext.News.AddRange(newsDb);
+            }
+
+            if (newsDbContext.Comments.Count() == 0)
+            {
+                List<Comment> commentsDb = new List<Comment>
+                {
+                    new Comment
+                    {
+                        Id = "0b6c8d51-fa23-4b8f-8651-79f9910ba07a",
+                        IsDeleted = false,
+                        ParentId = null,
+                        Content = "We will all die",
+                        CreatedAt = DateTime.Parse("2020-04-11 17:19:42.9327488"),
+                        UpdatedAt = DateTime.Parse("2020-04-11 17:19:42.9327488"),
+                        UserId = "d3e23cdf-c2bf-4617-b732-aec526a160aa", // pesho UserName
+                        NewsId = "5601c70b-903b-436f-a47a-1b995a80d386" // COVID-19 News Title
+                    },
+
+                    new Comment
+                    {
+                        Id = "7d2c777d-b29a-4ba7-a4ac-208eb76eb1b0",
+                        IsDeleted = false,
+                        ParentId = null,
+                        Content = "It's 5G fault!",
+                        CreatedAt = DateTime.Parse("2020-04-15 21:19:42.1234321"),
+                        UpdatedAt = DateTime.Parse("2020-04-16 21:25:33.0"),
+                        UserId = "d3e23cdf-c2bf-4617-b732-aec526a160aa", // pesho UserName
+                        NewsId = "5601c70b-903b-436f-a47a-1b995a80d386" // COVID-19 News Title
+                    },
+
+                    new Comment
+                    {
+                        Id = "c90779bd-f1f4-494f-b9ff-aa308cb27018",
+                        IsDeleted = false,
+                        ParentId = null,
+                        Content = "Very good, very good!",
+                        CreatedAt = DateTime.Parse("2020-04-13 17:19:42.9327488"),
+                        UpdatedAt = DateTime.Parse("2020-04-13 17:19:42.9327488"),
+                        UserId = "550628a5-a507-474b-a87a-034098469f52", // tosho UserName
+                        NewsId = "7775d670-78ee-4043-9073-296f0459a6a1" // North Korea says Kim supervised second artillery drill in week News Title
+                    },
+
+                    new Comment
+                    {
+                        Id = "81febfa7-b4fc-4d7a-8f57-4ba9b666fc9d",
+                        IsDeleted = false,
+                        ParentId = "c90779bd-f1f4-494f-b9ff-aa308cb27018",
+                        Content = "Exactly :)",
+                        CreatedAt = DateTime.Parse("2020-04-16 19:15:42.0912353"),
+                        UpdatedAt = DateTime.Parse("2020-04-18 19:16:42.0912353"),
+                        UserId = "d3e23cdf-c2bf-4617-b732-aec526a160aa", // pesho UserName
+                        NewsId = "7775d670-78ee-4043-9073-296f0459a6a1" // North Korea says Kim supervised second artillery drill in week News Title
+                    },
+
+                    new Comment
+                    {
+                        Id = "f8ee025e-8993-4ee3-8689-aac9d4709d42",
+                        IsDeleted = false,
+                        ParentId = null,
+                        Content = "I don't think that's the correct way",
+                        CreatedAt = DateTime.Parse("2020-04-01 23:04:14.3578421"),
+                        UpdatedAt = DateTime.Parse("2020-04-01 23:04:14.3578421"),
+                        UserId = "7a5e4dee-c591-4207-8e06-61fcea628ade", // gosho UserName
+                        NewsId = "7775d670-78ee-4043-9073-296f0459a6a1" // North Korea says Kim supervised second artillery drill in week News Title
+                    }
+
+                };
+
+                newsDbContext.Comments.AddRange(commentsDb);
+            }
+
+            if (newsDbContext.Votes.Count() == 0)
+            {
+                List<Vote> votesDb = new List<Vote>
+                {
+                    new Vote
+                    {
+                        IsDeleted = false,
+                        CommentId = "0b6c8d51-fa23-4b8f-8651-79f9910ba07a", // A comment on the North Korea says Kim supervised second artillery drill in week News Title made by a user with UserName gosho
+                        UserId = "7a5e4dee-c591-4207-8e06-61fcea628ade" // gosho UserName
+                    }
+                };
+
+                newsDbContext.Votes.AddRange(votesDb);
             }
 
             newsDbContext.SaveChanges();

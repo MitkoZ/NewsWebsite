@@ -7,5 +7,7 @@ namespace NewsWebsite.ViewModels.News.Comments
         public bool CreatedByCurrentUser { get; set; }
         public string Creator { get; set; }//TODO: should be creatorId
         public Dictionary<string, string> Pings { get; set; }
+        public int UpvoteCount { get; set; }
+        public bool UserHasUpvoted { get; set; }//TODO: should be IsUserHasUpvoted
     }
 }
