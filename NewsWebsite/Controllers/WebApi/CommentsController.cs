@@ -44,6 +44,10 @@ namespace NewsWebsite.Controllers.WebApi
                 UserHasUpvoted = commentsService.GetVotes(commentDb, vote => vote.UserId == this.GetCurrentUserId()).Any()
             };
         }
+        private bool IsCreatedByCurrentUser(string userId)
+        {
+            return this.GetCurrentUserId() == userId ? true : false;
+        }
 
         [HttpGet("{newsId}")]
         public async Task<ActionResult<List<GetCommentViewModel>>> GetCommentsAsync([FromRoute]string newsId)
@@ -65,37 +69,6 @@ namespace NewsWebsite.Controllers.WebApi
 
             return Ok(commentViewModels);
         }
-
-        //private string GetPings(string content)
-        //{
-        //    return content.Split('@').ToList().ForEach(userId => this.userService.GetAll().FirstOrDefault(user => user.Id == userId));
-        //}
-
-        private bool IsCreatedByCurrentUser(string userId)
-        {
-            return this.GetCurrentUserId() == userId ? true : false;
-        }
-
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<EditCommentViewModel>> GetComment(string id)
-        //{
-        //    Comment commentDb = await commentsService.GetAll(x => x.Id == id).FirstOrDefaultAsync();
-
-        //    if (commentDb == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    EditCommentViewModel commentViewModel = new EditCommentViewModel //TODO: do we really need last modified date and created date???
-        //    {
-        //        Id = commentDb.Id,
-        //        Content = commentDb.Content,
-        //        Fullname = commentDb.User.UserName,
-        //        ParentId = commentDb.ParentId
-        //    };
-
-        //    return commentViewModel;
-        //}
 
         [HttpPut("{id}")]
         public async Task<ActionResult<GetCommentViewModel>> PutComment(PutCommentViewModel putCommentViewModel)
