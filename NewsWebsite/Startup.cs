@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using DataAccess;
 using DataAccess.Entities;
 using Microsoft.AspNetCore.Builder;
@@ -25,6 +24,8 @@ using Services.CRUD.Interfaces;
 using Services.SMTP;
 using Services.SMTP.DTOs;
 using Services.SMTP.Interfaces;
+using Services.Transactions;
+using Services.Transactions.Interfaces;
 
 namespace NewsWebsite
 {
@@ -69,11 +70,6 @@ namespace NewsWebsite
                 options.SignIn.RequireConfirmedEmail = true;
             });
 
-            services.AddScoped<IUsersRepository, UsersRepository>();
-            services.AddScoped<IUsersService, UsersService>();
-            services.AddScoped<INewsRepository, NewsRepository>();
-            services.AddScoped<INewsService, NewsService>();
-
             services.AddControllersWithViews();
             services.AddLogging(logging =>
             {
@@ -87,7 +83,24 @@ namespace NewsWebsite
             });
 
             ConfigureOptions(services);
+            AddRepositories(services);
+            AddServices(services);
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+        }
+
+        private void AddServices(IServiceCollection services)
+        {
+            services.AddScoped<IUsersService, UsersService>();
+            services.AddScoped<INewsService, NewsService>();
+            services.AddScoped<ICommentsService, CommentsService>();
             services.AddSingleton<ISMTPService, SMTPService>();
+        }
+
+        private void AddRepositories(IServiceCollection services)
+        {
+            services.AddScoped<IUsersRepository, UsersRepository>();
+            services.AddScoped<INewsRepository, NewsRepository>();
+            services.AddScoped<ICommentsRepository, CommentsRepository>();
         }
 
         private void ConfigureOptions(IServiceCollection services) // we use this method in order not to make a dependency on the Options framework. (the IOptions<T> wrapper around the options object https://stackoverflow.com/questions/53424593/services-configure-or-services-addsingleton-get (exact answer: https://stackoverflow.com/a/53431790))
@@ -181,6 +194,7 @@ namespace NewsWebsite
                         LockoutEnd = null,
                         LockoutEnabled = false,
                         AccessFailedCount = 0,
+                        IsDeleted = false
                     },
 
                    new User
@@ -199,8 +213,49 @@ namespace NewsWebsite
                        TwoFactorEnabled = false,
                        LockoutEnd = null,
                        LockoutEnabled = false,
-                       AccessFailedCount = 0
-                    }
+                       AccessFailedCount = 0,
+                       IsDeleted = false
+                    },
+
+                   new User
+                   {
+                       Id = "550628a5-a507-474b-a87a-034098469f52",
+                       UserName = "tosho",
+                       NormalizedUserName = "TOSHO",
+                       Email = "tosho@dummyemail.com",
+                       NormalizedEmail = "TOSHO@DUMMYEMAIL.COM",
+                       EmailConfirmed = true,
+                       PasswordHash = "AQAAAAEAACcQAAAAEJgMQjNMey6JTJUiUDn5DctBCdbZRqGzBKnxQ3XH5I15IaihoRSxqrsivCD9jdGW7g==", // In plaintext the password is toshopass
+                       SecurityStamp = "JVUSQ6P3ULZNLAXO65XTLY2BQ76HE7XF",
+                       ConcurrencyStamp = "18247571-266f-4ec4-b7be-70c8424148f7",
+                       PhoneNumber = null,
+                       PhoneNumberConfirmed = true,
+                       TwoFactorEnabled = false,
+                       LockoutEnd = null,
+                       LockoutEnabled = false,
+                       AccessFailedCount = 0,
+                       IsDeleted = false
+                   },
+
+                   new User
+                   {
+                       Id = "7a5e4dee-c591-4207-8e06-61fcea628ade",
+                       UserName = "gosho",
+                       NormalizedUserName = "GOSHO",
+                       Email = "gosho@dummyemail.com",
+                       NormalizedEmail = "GOSHO@DUMMYEMAIL.COM",
+                       EmailConfirmed = true,
+                       PasswordHash = "AQAAAAEAACcQAAAAEJPLlpFrJv97Z9yfdJpobY6kfD7FLvXFrDBJdhpg3Fm7CsXL0WL2PcARoh7rkWH4aA==",
+                       SecurityStamp = "5G556U55RWAWDUXFQTG3Y4RIJJCYUEOH",
+                       ConcurrencyStamp = "e8cfb6cd-2fac-41bb-87e4-7df6070557e1",
+                       PhoneNumber = null,
+                       PhoneNumberConfirmed = true,
+                       TwoFactorEnabled = false,
+                       LockoutEnd = null,
+                       LockoutEnabled = false,
+                       AccessFailedCount = 0,
+                       IsDeleted = false
+                   }
 
                 };
 
@@ -259,6 +314,18 @@ namespace NewsWebsite
                     {
                         UserId = "d3e23cdf-c2bf-4617-b732-aec526a160aa", // pesho UserName
                         RoleId = "164c0c3e-7f24-438f-9708-b7e69c6d2b4a" // Reporter Role
+                    },
+
+                    new IdentityUserRole<string>
+                    {
+                        UserId = "550628a5-a507-474b-a87a-034098469f52", // tosho UserName
+                        RoleId = "cf9259d6-a41e-4629-82d5-ea94dad436f1", // NormalUser Role 
+                    },
+
+                    new IdentityUserRole<string>
+                    {
+                        UserId = "7a5e4dee-c591-4207-8e06-61fcea628ade", // gosho UserName
+                        RoleId = "cf9259d6-a41e-4629-82d5-ea94dad436f1" // NormalUser Role
                     }
                 };
 
@@ -321,6 +388,90 @@ namespace NewsWebsite
                 };
 
                 newsDbContext.News.AddRange(newsDb);
+            }
+
+            if (newsDbContext.Comments.Count() == 0)
+            {
+                List<Comment> commentsDb = new List<Comment>
+                {
+                    new Comment
+                    {
+                        Id = "0b6c8d51-fa23-4b8f-8651-79f9910ba07a",
+                        IsDeleted = false,
+                        ParentId = null,
+                        Content = "We will all die",
+                        CreatedAt = DateTime.Parse("2020-04-11 17:19:42.9327488"),
+                        UpdatedAt = DateTime.Parse("2020-04-11 17:19:42.9327488"),
+                        UserId = "d3e23cdf-c2bf-4617-b732-aec526a160aa", // pesho UserName
+                        NewsId = "5601c70b-903b-436f-a47a-1b995a80d386" // COVID-19 News Title
+                    },
+
+                    new Comment
+                    {
+                        Id = "7d2c777d-b29a-4ba7-a4ac-208eb76eb1b0",
+                        IsDeleted = false,
+                        ParentId = null,
+                        Content = "It's 5G fault!",
+                        CreatedAt = DateTime.Parse("2020-04-15 21:19:42.1234321"),
+                        UpdatedAt = DateTime.Parse("2020-04-16 21:25:33.0"),
+                        UserId = "d3e23cdf-c2bf-4617-b732-aec526a160aa", // pesho UserName
+                        NewsId = "5601c70b-903b-436f-a47a-1b995a80d386" // COVID-19 News Title
+                    },
+
+                    new Comment
+                    {
+                        Id = "c90779bd-f1f4-494f-b9ff-aa308cb27018",
+                        IsDeleted = false,
+                        ParentId = null,
+                        Content = "Very good, very good!",
+                        CreatedAt = DateTime.Parse("2020-04-13 17:19:42.9327488"),
+                        UpdatedAt = DateTime.Parse("2020-04-13 17:19:42.9327488"),
+                        UserId = "550628a5-a507-474b-a87a-034098469f52", // tosho UserName
+                        NewsId = "7775d670-78ee-4043-9073-296f0459a6a1" // North Korea says Kim supervised second artillery drill in week News Title
+                    },
+
+                    new Comment
+                    {
+                        Id = "81febfa7-b4fc-4d7a-8f57-4ba9b666fc9d",
+                        IsDeleted = false,
+                        ParentId = "c90779bd-f1f4-494f-b9ff-aa308cb27018",
+                        Content = "Exactly :)",
+                        CreatedAt = DateTime.Parse("2020-04-16 19:15:42.0912353"),
+                        UpdatedAt = DateTime.Parse("2020-04-18 19:16:42.0912353"),
+                        UserId = "d3e23cdf-c2bf-4617-b732-aec526a160aa", // pesho UserName
+                        NewsId = "7775d670-78ee-4043-9073-296f0459a6a1" // North Korea says Kim supervised second artillery drill in week News Title
+                    },
+
+                    new Comment
+                    {
+                        Id = "f8ee025e-8993-4ee3-8689-aac9d4709d42",
+                        IsDeleted = false,
+                        ParentId = null,
+                        Content = "I don't think that's the correct way @d3e23cdf-c2bf-4617-b732-aec526a160aa",
+                        CreatedAt = DateTime.Parse("2020-04-01 23:04:14.3578421"),
+                        UpdatedAt = DateTime.Parse("2020-04-01 23:04:14.3578421"),
+                        UserId = "7a5e4dee-c591-4207-8e06-61fcea628ade", // gosho UserName
+                        NewsId = "7775d670-78ee-4043-9073-296f0459a6a1" // North Korea says Kim supervised second artillery drill in week News Title
+                    }
+
+                };
+
+                newsDbContext.Comments.AddRange(commentsDb);
+            }
+
+            if (newsDbContext.Votes.Count() == 0)
+            {
+                List<Vote> votesDb = new List<Vote>
+                {
+                    new Vote
+                    {
+                        IsDeleted = false,
+                        CommentId = "0b6c8d51-fa23-4b8f-8651-79f9910ba07a", // A comment on the North Korea says Kim supervised second artillery drill in week News Title made by a user with UserName gosho
+                        UserId = "7a5e4dee-c591-4207-8e06-61fcea628ade" // gosho UserName
+                    }
+                };
+
+                newsDbContext.Votes.AddRange(votesDb);
             }
 
             newsDbContext.SaveChanges();

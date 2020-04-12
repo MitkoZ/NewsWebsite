@@ -1,6 +1,7 @@
 ﻿using DataAccess.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using DataAccess.Utils;
 
 namespace DataAccess
 {
@@ -16,9 +17,26 @@ namespace DataAccess
             modelBuilder.Entity<News>()
                 .HasIndex(news => news.Title).IsUnique();
 
+            modelBuilder.Entity<Vote>()
+                .HasOne(vote => vote.Comment)
+                .WithMany(comment => comment.Votes)
+                .HasForeignKey(vote => vote.CommentId);
+
+            modelBuilder.Entity<Vote>()
+                .HasOne(vote => vote.User)
+                .WithMany(user => user.Votes)
+                .HasForeignKey(user => user.UserId);
+
+            modelBuilder
+                .Entity<Vote>()
+                .HasKey(vote => new { vote.CommentId, vote.UserId });
+
+            modelBuilder.RemoveCascadeDelete();
             base.OnModelCreating(modelBuilder);
         }
 
         public DbSet<News> News { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Vote> Votes { get; set; }
     }
 }

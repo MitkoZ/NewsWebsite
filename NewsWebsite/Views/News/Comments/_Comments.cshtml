@@ -1,0 +1,153 @@
+﻿@model string
+@inject Services.CRUD.Interfaces.IUsersService usersService;
+
+<link rel="stylesheet" href="/node_modules/@@mitkoz/jquery-comments/css/jquery-comments.css">
+<link rel="stylesheet" type="text/css" href="/node_modules/font-awesome/css/font-awesome.min.css">
+
+<script type="text/javascript" src="/node_modules/jquery-textcomplete/dist/jquery.textcomplete.min.js"></script>
+<script src="/node_modules/@@mitkoz/jquery-comments/js/jquery-comments.min.js"></script>
+
+<script>
+    $(function () {
+
+        let convertPingedUserIdsToText = function (data) {
+            // Convert pings to human readable format
+            if (data.pings) {
+                $(Object.keys(data.pings)).each(function (index, userId) {
+                    let username = data.pings[userId];
+                    let pingText = '@@' + username;
+                    data.content = data.content.replace(new RegExp('@@' + userId, 'g'), pingText);
+                });
+            }
+
+            return data;
+        }
+
+        let _fieldMappings = {
+            id: 'id',
+            parent: 'parentId',
+            created: 'createdAt',
+            modified: 'updatedAt',
+            content: 'content',
+            file: 'file',
+            fileURL: 'file_url',
+            fileMimeType: 'file_mime_type',
+            pings: 'pings',
+            creator: 'creatorId',
+            fullname: 'username',
+            profileURL: 'profile_url',
+            profilePictureURL: 'profile_picture_url',
+            isNew: 'is_new',
+            createdByAdmin: 'created_by_admin',
+            createdByCurrentUser: 'isCreatedByCurrentUser',
+            upvoteCount: 'upvoteCount',
+            userHasUpvoted: 'isUserUpvoted'
+        };
+
+       let printErrorsToConsole = function (jqXHR, textStatus, errorThrown) {
+            console.log(JSON.stringify(jqXHR), textStatus, errorThrown);
+       }
+
+        $('#comments-container').comments({
+            enableReplying: true,
+            maxRepliesVisible: 0, // We want always to have the View All replies if a comment has a subcomment
+            enableDeletingCommentWithReplies: true,
+            enablePinging: true,
+            enableUpvoting: true,
+            readOnly: @((!usersService.IsSignedIn(User)).ToString().ToLower()), // C# returns True and False instead of true and false
+
+            getComments: function (success, error) {
+                $.ajax({
+                    type: 'get',
+                    url: '/api/comments/@Model',
+                    success: function (commentsArray) {
+                        success(commentsArray)
+                    },
+                    error: printErrorsToConsole
+                });
+            },
+
+            fieldMappings: _fieldMappings,
+
+            // They use the REST api naming convetion
+            postComment: function (commentJSON, success, error) {
+                $.ajax({
+                    contentType: "application/json;charset=utf-8",
+                    type: 'post',
+                    url: '/api/Comments/@Model',
+                    data: JSON.stringify(commentJSON),
+                    success: function (comment) {
+                        success(convertPingedUserIdsToText(comment))
+                    },
+                    error: printErrorsToConsole
+                });
+            },
+
+            putComment: function (commentJSON, success, error) {
+                $.ajax({
+                    contentType: "application/json;charset=utf-8",
+                    type: 'put',
+                    url: '/api/Comments/' + commentJSON.id,
+                    data: JSON.stringify(commentJSON),
+                    success: function (comment) {
+                        success(convertPingedUserIdsToText(comment))
+                    },
+                    error: printErrorsToConsole
+                });
+            },
+
+            deleteComment: function (commentJSON, success, error) {
+                $.ajax({
+                    type: 'delete',
+                    url: '/api/Comments/' + commentJSON.id,
+                    success: success,
+                    error: printErrorsToConsole
+                });
+            },
+
+            upvoteComment: function (commentJSON, success, error) {
+                if (commentJSON.isUserUpvoted) { // user wants to upvote
+                    $.ajax({
+                        type: 'post',
+                        url: '/api/Comments/' + commentJSON.id + '/upvote',
+                        data: {
+                            comment: commentJSON.id
+                        },
+                        success: function () {
+                            success(commentJSON)
+                        },
+                        error: printErrorsToConsole
+                    });
+                } else { // user wants to remove his vote
+                    $.ajax({
+                        type: 'delete',
+                        url: '/api/Comments/' + commentJSON.id + '/downvote',
+                        success: function () {
+                            success(commentJSON)
+                        },
+                        error: printErrorsToConsole
+                    });
+                }
+            },
+
+            searchUsers: function (term, success, error) {
+                if (!term) {
+                    success([]); // we need to pass an empty array when there are no results or the searchUsers callback will stop getting called the next times
+                    return;
+                }
+
+                $.ajax({
+                    type: 'get',
+                    url: '/api/users/' + term,
+                    success: function (userArray) {
+                        success(userArray)
+                    },
+                    error: printErrorsToConsole
+                });
+            }
+
+        });
+    })
+</script>
+
+<div id="comments-container"></div>

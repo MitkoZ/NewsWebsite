@@ -1,9 +1,11 @@
-﻿using System;
+﻿using DataAccess.Entities.Abstractions.Classes;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace DataAccess.Entities
 {
-    public class News : BaseEntity
+    public class News : BaseNormalEntity // News doesn't have a singular
     {
         [Required]
         public string Title { get; set; }
@@ -20,5 +22,7 @@ namespace DataAccess.Entities
         public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }
+
+        public virtual ICollection<Comment> Comments { get; set; }
     }
 }

@@ -6,15 +6,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NewsWebsite.ViewModels.News;
 using Services.CRUD.Interfaces;
+using NewsWebsite.Utils;
+using Services.Transactions.Interfaces;
 
 namespace NewsWebsite.Controllers
 {
-    public class NewsController : BaseController
+    public class NewsController : BaseViewsController
     {
+        private readonly IUnitOfWork unitOfWork;
         private readonly INewsService newsService;
 
-        public NewsController(INewsService newsService, ILogger<NewsController> logger) : base(logger)
+        public NewsController(IUnitOfWork unitOfWork, INewsService newsService, ILogger<NewsController> logger) : base(logger)
         {
+            this.unitOfWork = unitOfWork;
             this.newsService = newsService;
         }
 
@@ -55,6 +59,7 @@ namespace NewsWebsite.Controllers
 
             DetailsNewsViewModel detailsNewsViewModel = new DetailsNewsViewModel
             {
+                Id = newsDb.Id,
                 Content = newsDb.Content,
                 Title = newsDb.Title,
                 ReporterName = newsDb.User.UserName,
@@ -90,10 +95,12 @@ namespace NewsWebsite.Controllers
             {
                 Title = createNewsViewModel.Title,
                 Content = createNewsViewModel.Content,
-                UserId = base.GetCurrentUserId()
+                UserId = this.GetCurrentUserId()
             };
 
-            bool isSaved = await newsService.SaveAsync(newsDb);
+            newsService.Save(newsDb);
+            bool isSaved = await unitOfWork.CommitAsync();
+
             if (!isSaved)
             {
                 ViewBag.ErrorMessage = "Ooops, something went wrong";
@@ -151,7 +158,8 @@ namespace NewsWebsite.Controllers
             newsDb.Title = editNewsViewModel.Title;
             newsDb.Content = editNewsViewModel.Content;
 
-            bool isSaved = await this.newsService.SaveAsync(newsDb);
+            this.newsService.Save(newsDb);
+            bool isSaved = await this.unitOfWork.CommitAsync();
             if (!isSaved)
             {
                 ViewBag.ErrorMessage = "Ooops, something went wrong";
@@ -165,7 +173,8 @@ namespace NewsWebsite.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteAsync(string id)
         {
-            bool isDeleted = await this.newsService.DeleteAsync(id);
+            this.newsService.Delete(id);
+            bool isDeleted = await this.unitOfWork.CommitAsync();
 
             if (isDeleted)
             {

@@ -1,16 +1,15 @@
 ﻿using DataAccess;
-using DataAccess.Entities.Interfaces;
+using DataAccess.Entities.Abstractions.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace Repositories
 {
     public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity>
-        where TEntity : class, IBaseEntity
+        where TEntity : class, IBaseNormalEntity
     {
         private readonly DbContext dbContext;
 
@@ -43,7 +42,7 @@ namespace Repositories
             this.dbContext.Set<TEntity>().Update(entity);
         }
 
-        public async Task<int> SaveAsync(TEntity entity)
+        public void Save(TEntity entity)
         {
             if (entity.Id == null)
             {
@@ -53,16 +52,12 @@ namespace Repositories
             {
                 this.Update(entity);
             }
-
-            return await dbContext.SaveChangesAsync();
         }
 
-        public async Task<int> DeleteAsync(string id)
+        public void Delete(string id)
         {
-            TEntity entity = await this.dbContext.Set<TEntity>().FindAsync(id);
-            this.dbContext.Remove(entity);
-
-            return await this.dbContext.SaveChangesAsync();
+            TEntity entity = this.dbContext.Set<TEntity>().Find(id);
+            entity.IsDeleted = true;
         }
     }
 }

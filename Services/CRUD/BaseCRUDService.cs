@@ -1,43 +1,43 @@
-﻿using DataAccess.Entities.Interfaces;
+﻿using DataAccess.Entities.Abstractions.Interfaces;
+using LinqKit;
 using Repositories.Interfaces;
 using Services.CRUD.Interfaces;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace Services.CRUD
 {
     public abstract class BaseCRUDService<TEntity> : IBaseCRUDService<TEntity>
-        where TEntity : IBaseEntity
+        where TEntity : IBaseNormalEntity
     {
-        private readonly IBaseRepository<TEntity> repository;
+        protected readonly IBaseRepository<TEntity> repository;
 
         public BaseCRUDService(IBaseRepository<TEntity> repository)
         {
             this.repository = repository;
         }
 
-        public IQueryable<TEntity> GetAll(Expression<Func<TEntity, bool>> filter = null)
+        public IQueryable<TEntity> GetAll(Expression<Func<TEntity, bool>> filter = null, bool isQueryDeletedRecords = false)
         {
-            return this.repository.GetAll(filter);
-        }
-
-        public async Task<bool> SaveAsync(TEntity entity)
-        {
-            int savedEntities = await this.repository.SaveAsync(entity);
-
-            if (savedEntities > 0)
+            Expression<Func<TEntity, bool>> isQueryDeletedRecordsFilter = x => x.IsDeleted == isQueryDeletedRecords;
+            if (filter != null)
             {
-                return true;
+                isQueryDeletedRecordsFilter = isQueryDeletedRecordsFilter.And(filter);
             }
 
-            return false;
+            return this.repository.GetAll(isQueryDeletedRecordsFilter);
         }
 
-        public async Task<bool> DeleteAsync(string id)
+        public void Save(TEntity entity)
         {
-            return await this.repository.DeleteAsync(id) > 0;
+            this.repository.Save(entity);
         }
+
+        public virtual void Delete(string id)
+        {
+            this.repository.Delete(id);
+        }
+
     }
 }
