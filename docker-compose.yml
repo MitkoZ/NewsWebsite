@@ -8,4 +8,4 @@ services:
     depends_on: 
       - newsdatabase
   newsdatabase:
-    image: ${DOCKER_REGISTRY-}microsoft/mssql-server-windows-express
+    image: ${DOCKER_REGISTRY-}microsoft/mssql-server-windows-express:1709
