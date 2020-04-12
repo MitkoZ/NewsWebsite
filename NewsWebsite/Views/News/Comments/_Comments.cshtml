@@ -11,12 +11,11 @@
     $(function () {
 
         let convertPingedUserIdsToText = function (data) {
-            debugger;
             // Convert pings to human readable format
             if (data.pings) {
                 $(Object.keys(data.pings)).each(function (index, userId) {
-                    var fullname = data.pings[userId];
-                    var pingText = '@@' + fullname;
+                    let username = data.pings[userId];
+                    let pingText = '@@' + username;
                     data.content = data.content.replace(new RegExp('@@' + userId, 'g'), pingText);
                 });
             }
@@ -24,7 +23,7 @@
             return data;
         }
 
-        let _fieldMappings = { // don't remap the fullname because then it doesn't work
+        let _fieldMappings = {
             id: 'id',
             parent: 'parentId',
             created: 'createdAt',
@@ -34,21 +33,16 @@
             fileURL: 'file_url',
             fileMimeType: 'file_mime_type',
             pings: 'pings',
-            creator: 'creator',
-            fullname: 'fullname',
+            creator: 'creatorId',
+            fullname: 'username',
             profileURL: 'profile_url',
             profilePictureURL: 'profile_picture_url',
             isNew: 'is_new',
             createdByAdmin: 'created_by_admin',
-            createdByCurrentUser: 'createdByCurrentUser',
+            createdByCurrentUser: 'isCreatedByCurrentUser',
             upvoteCount: 'upvoteCount',
-            userHasUpvoted: 'userHasUpvoted'
+            userHasUpvoted: 'isUserUpvoted'
         };
-
-       let removeDateTimeFields = function (commentJSON) {
-           delete commentJSON[_fieldMappings["created"]];
-           delete commentJSON[_fieldMappings["modified"]];
-       }
 
        let printErrorsToConsole = function (jqXHR, textStatus, errorThrown) {
             console.log(JSON.stringify(jqXHR), textStatus, errorThrown);
@@ -63,12 +57,10 @@
             readOnly: @((!usersService.IsSignedIn(User)).ToString().ToLower()), // C# returns True and False instead of true and false
 
             getComments: function (success, error) {
-                debugger;
                 $.ajax({
                     type: 'get',
                     url: '/api/comments/@Model',
                     success: function (commentsArray) {
-                        debugger;
                         success(commentsArray)
                     },
                     error: printErrorsToConsole
@@ -92,8 +84,6 @@
             },
 
             putComment: function (commentJSON, success, error) {
-                debugger;
-                removeDateTimeFields(commentJSON);
                 $.ajax({
                     contentType: "application/json;charset=utf-8",
                     type: 'put',
@@ -107,18 +97,16 @@
             },
 
             deleteComment: function (commentJSON, success, error) {
-                debugger;
                 $.ajax({
                     type: 'delete',
                     url: '/api/Comments/' + commentJSON.id,
                     success: success,
-                    error: error
+                    error: printErrorsToConsole
                 });
             },
 
             upvoteComment: function (commentJSON, success, error) {
-                debugger;
-                if (commentJSON.userHasUpvoted) { // user wants to upvote
+                if (commentJSON.isUserUpvoted) { // user wants to upvote
                     $.ajax({
                         type: 'post',
                         url: '/api/Comments/' + commentJSON.id + '/upvote',
@@ -128,7 +116,7 @@
                         success: function () {
                             success(commentJSON)
                         },
-                        error: error
+                        error: printErrorsToConsole
                     });
                 } else { // user wants to remove his vote
                     $.ajax({
@@ -137,13 +125,12 @@
                         success: function () {
                             success(commentJSON)
                         },
-                        error: error
+                        error: printErrorsToConsole
                     });
                 }
             },
 
             searchUsers: function (term, success, error) {
-                debugger;
                 if (!term) {
                     success([]); // we need to pass an empty array when there are no results or the searchUsers callback will stop getting called the next times
                     return;

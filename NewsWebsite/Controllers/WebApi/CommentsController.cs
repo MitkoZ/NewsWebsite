@@ -34,14 +34,14 @@ namespace NewsWebsite.Controllers.WebApi
                 Id = commentDb.Id,
                 Content = await this.commentsService.ReplaceUserIdsWithUsernames(commentDb.Content),
                 ParentId = commentDb.ParentId,
-                Fullname = commentDb.User.UserName,
+                Username = commentDb.User.UserName,
                 CreatedAt = commentDb.CreatedAt,
                 UpdatedAt = commentDb.UpdatedAt,
-                Creator = commentDb.UserId,
-                CreatedByCurrentUser = this.IsCreatedByCurrentUser(commentDb.UserId),
+                CreatorId = commentDb.UserId,
+                IsCreatedByCurrentUser = this.IsCreatedByCurrentUser(commentDb.UserId),
                 Pings = this.commentsService.GetPingedUsers(commentDb.Content),
                 UpvoteCount = commentsService.GetVotes(commentDb).Count,
-                UserHasUpvoted = commentsService.GetVotes(commentDb, vote => vote.UserId == this.GetCurrentUserId()).Any()
+                IsUserUpvoted = commentsService.GetVotes(commentDb, vote => vote.UserId == this.GetCurrentUserId()).Any()
             };
         }
 
