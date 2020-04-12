@@ -5,7 +5,6 @@ using Repositories.Interfaces;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace Repositories
 {
@@ -55,9 +54,9 @@ namespace Repositories
             }
         }
 
-        public async Task DeleteAsync(string id)
+        public void Delete(string id)
         {
-            TEntity entity = await this.dbContext.Set<TEntity>().FindAsync(id);
+            TEntity entity = this.dbContext.Set<TEntity>().Find(id);
             entity.IsDeleted = true;
         }
     }

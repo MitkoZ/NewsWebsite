@@ -18,17 +18,17 @@ namespace Services.CRUD
             this.usersService = usersService;
         }
 
-        public override async Task DeleteAsync(string id)
+        public override void Delete(string id)
         {
-            List<Comment> subCommentsDb = await base.repository.GetAll(x => x.ParentId == id)
-                                                               .ToListAsync(); // if the collection is empty, the foreach won't execute
+            List<Comment> subCommentsDb = base.repository.GetAll(x => x.ParentId == id)
+                                                         .ToList(); // if the collection is empty, the foreach won't execute
 
-            subCommentsDb.ForEach(async subComment =>
+            subCommentsDb.ForEach(subComment =>
             {
-                await this.DeleteAsync(subComment.Id); // deletes subcomments recursively
+                this.Delete(subComment.Id); // deletes subcomments recursively
             });
 
-            await base.DeleteAsync(id); // deletes main comment
+            base.Delete(id); // deletes main comment
         }
 
         public Dictionary<string, string> GetPingedUsers(string content)
@@ -36,10 +36,10 @@ namespace Services.CRUD
             Dictionary<string, string> idsUsersDictionary = new Dictionary<string, string>();
             List<string> pingedUsersIds = this.GetPingedUsersIds(content);
 
-            pingedUsersIds.ForEach(async userId =>
+            pingedUsersIds.ForEach(userId =>
             {
-                User userDb = await this.usersService.GetAll(userDb => userDb.Id == userId)
-                                                     .FirstOrDefaultAsync();
+                User userDb = this.usersService.GetAll(userDb => userDb.Id == userId)
+                                               .FirstOrDefault(); // don't use async FirstOrDefault, since it doesn't play well with ForEach (https://stackoverflow.com/questions/18667633/how-can-i-use-async-with-foreach, https://markheath.net/post/async-antipatterns "The ForEach method accepts an Action<T>, which returns void. So you've essentially created an async void method, which of course was one of our previous antipatterns as the caller has no way of awaiting it.")
 
                 if (!idsUsersDictionary.ContainsKey(userDb.Id))
                 {

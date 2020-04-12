@@ -44,6 +44,7 @@ namespace NewsWebsite.Controllers.WebApi
                 UserHasUpvoted = commentsService.GetVotes(commentDb, vote => vote.UserId == this.GetCurrentUserId()).Any()
             };
         }
+
         private bool IsCreatedByCurrentUser(string userId)
         {
             return this.GetCurrentUserId() == userId ? true : false;
@@ -64,7 +65,7 @@ namespace NewsWebsite.Controllers.WebApi
 
             foreach (Comment commentDb in commentsDb)
             {
-                commentViewModels.Add(await this.MapToGetCommentViewModelAsync(commentDb)); //TODO: do we really need last modified date and created date??? TODO: use MapToGetCommentViewModel
+                commentViewModels.Add(await this.MapToGetCommentViewModelAsync(commentDb));
             }
 
             return Ok(commentViewModels);
@@ -101,7 +102,7 @@ namespace NewsWebsite.Controllers.WebApi
             };
 
             User currentUserDb = await this.userService.GetAll(x => x.Id == this.GetCurrentUserId())
-                                                        .FirstOrDefaultAsync();
+                                                       .FirstOrDefaultAsync();
             currentUserDb.Comments.Add(commentDb);
 
             commentsService.Save(commentDb);
@@ -111,7 +112,7 @@ namespace NewsWebsite.Controllers.WebApi
             {
                 GetCommentViewModel commentViewModel = await this.MapToGetCommentViewModelAsync(commentDb);
 
-                return CreatedAtAction(nameof(GetCommentsAsync), new { id = commentDb.Id }, commentViewModel);// TODO: should return getCommentViewModel, remove created at action
+                return Ok(commentViewModel);
             }
 
             return BadRequest();
@@ -120,7 +121,7 @@ namespace NewsWebsite.Controllers.WebApi
         [HttpDelete("{id}")]
         public async Task<ActionResult<Comment>> DeleteComment([FromRoute]string id)
         {
-            await this.commentsService.DeleteAsync(id);
+            this.commentsService.Delete(id);
             bool isDeleted = await this.unitOfWork.CommitAsync();
 
             if (isDeleted)
@@ -184,7 +185,7 @@ namespace NewsWebsite.Controllers.WebApi
         }
 
         [HttpGet("/api/users/{username}")] // Please note that the "/" part of the action attribute overrides the controller's attribute, so it does not append it's template
-        public async Task<ActionResult<List<GetUserViewModel>>> GetUsersByUsernameFilter([FromRoute]string username)//TODO: should we include the newsId, so we can show ping for users that have only already commented the current news?
+        public async Task<ActionResult<List<GetUserViewModel>>> GetUsersByUsernameFilter([FromRoute]string username)
         {
             List<GetUserViewModel> usersViewModels = new List<GetUserViewModel>();
 

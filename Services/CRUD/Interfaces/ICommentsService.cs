@@ -26,6 +26,7 @@ namespace Services.CRUD.Interfaces
         void DeleteVote(Vote vote);
 
         List<Vote> GetVotes(Comment commentDb, Func<Vote, bool> filter = null, bool isQueryDeletedRecords = false);
+
         void SaveVote(Comment commentDb, Vote vote);
     }
 }

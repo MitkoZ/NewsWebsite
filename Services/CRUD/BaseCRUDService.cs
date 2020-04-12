@@ -5,7 +5,6 @@ using Services.CRUD.Interfaces;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace Services.CRUD
 {
@@ -35,9 +34,9 @@ namespace Services.CRUD
             this.repository.Save(entity);
         }
 
-        public virtual async Task DeleteAsync(string id)
+        public virtual void Delete(string id)
         {
-            await this.repository.DeleteAsync(id);
+            this.repository.Delete(id);
         }
 
     }

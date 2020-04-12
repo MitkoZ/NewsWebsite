@@ -173,7 +173,7 @@ namespace NewsWebsite.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteAsync(string id)
         {
-            await this.newsService.DeleteAsync(id);
+            this.newsService.Delete(id);
             bool isDeleted = await this.unitOfWork.CommitAsync();
 
             if (isDeleted)

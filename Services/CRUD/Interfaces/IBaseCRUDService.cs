@@ -2,7 +2,6 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace Services.CRUD.Interfaces
 {
@@ -10,6 +9,6 @@ namespace Services.CRUD.Interfaces
     {
         IQueryable<TEntity> GetAll(Expression<Func<TEntity, bool>> filter = null, bool isQueryDeletedRecords = false);
         void Save(TEntity entity);
-        Task DeleteAsync(string id);
+        void Delete(string id);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace NewsWebsite.ViewModels.News.Comments
 {
@@ -9,5 +10,7 @@ namespace NewsWebsite.ViewModels.News.Comments
         public Dictionary<string, string> Pings { get; set; }
         public int UpvoteCount { get; set; }
         public bool UserHasUpvoted { get; set; }//TODO: should be IsUserHasUpvoted
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 }
