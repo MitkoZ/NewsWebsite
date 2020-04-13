@@ -61,6 +61,13 @@ namespace NewsWebsite.Controllers
                 string emailConfirmation = string.Format("Hi {0}. You have just registered to NewsWebsite. To confirm your email address, please go to: {1}", userDb.UserName, emailConfirmationLink);
                 this.smtpService.SendEmail("NewsWebsite Email Confirmation", emailConfirmation, userViewModel.Email);
 
+                UsersServiceResultDTO addToRoleResultDTO = await this.usersService.AddToRoleAsync(userDb, "NormalUser"); //TODO: extract magic string
+                if (!addToRoleResultDTO.IsSucceed)
+                {
+                    base.AddValidationErrorsToModelState(addToRoleResultDTO.ErrorMessages);
+                    return View(userViewModel);
+                }
+
                 TempData["SuccessMessage"] = "User registered successfully! In order to log in, please check the confirmation email that you have just received.";
                 return base.RedirectToIndexActionInHomeController();
             }

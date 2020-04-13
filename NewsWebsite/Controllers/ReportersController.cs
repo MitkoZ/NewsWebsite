@@ -54,7 +54,7 @@ namespace NewsWebsite.Controllers
             string setPasswordTextEmail = string.Format("Hi {0}, You have just been registered to our website by a system administrator. To complete your registration, please set your password by going to: {1}", userDb.UserName, setPasswordAbsoluteUrl);
             this.smtpService.SendEmail("NewsWebsite Complete Registration", setPasswordTextEmail, registerReporterViewModel.Email);
 
-            UsersServiceResultDTO addToRoleResultDTO = await this.usersService.AddToRoleAsync(userDb, "Reporter");
+            UsersServiceResultDTO addToRoleResultDTO = await this.usersService.AddToRoleAsync(userDb, "Reporter"); //TODO: extract magic string
             if (!addToRoleResultDTO.IsSucceed)
             {
                 base.AddValidationErrorsToModelState(addToRoleResultDTO.ErrorMessages);
