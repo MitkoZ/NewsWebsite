@@ -3,7 +3,7 @@ A News Website that uses ASP.NET Core MVC 3.1 and Docker
 
 # Setup
 The solution uses Docker with Windows Containers.
-* `DockerDevelopmentMode` is set to Regular in order to prevent the .NET Docker optimization tools - for maximum encapsulation (https://docs.microsoft.com/en-us/visualstudio/containers/docker-compose-properties?view=vs-2019).
+* `DockerDevelopmentMode` is set to Regular (yes it's much slower than the Fast Mode) in order to prevent the .NET Docker optimization tools - for maximum encapsulation (https://docs.microsoft.com/en-us/visualstudio/containers/docker-compose-properties?view=vs-2019).
 * That means that, in order to run the solution on your PC, you only need Visual Studio (tested with Community 2019 Version 16.5.3 version) and Docker (tested with Docker version 19.03.8, build afacb8b).
 * The projects also uses NPM (internally in the containers). However, Visual Studio by default, restores the npm packages if it finds a reference to NPM in your solution. In our case we use the packages only in the containers, not outside of them. That's why we need to disable the automatic download of the npm packages just as explained here: https://stackoverflow.com/questions/31965425/how-to-disable-visual-studio-2015-and-above-automatic-bower-install-on-solution/42064360#42064360.
 
@@ -45,3 +45,26 @@ If you've completed the steps above. The project should be good and running.
 Since we are using the .NET integrated tools for Docker and another assembly for the migrations, the migrations commands have to be more explicit.
 ### Creating a migration
 `dotnet ef migrations add <MigrationName> --startup-project .\NewsWebsite --project .\DataAccess` - This will create the migration in the DataAccess assembly.
+
+## Logging
+The custom exception logger uses Docker volumes, so that even if the container is removed, the logs will stay.
+### Locating the custom logs on the host PC
+1. `docker container ls` - will list all the containers. Grab the Container Id that uses the image created by the Docker for the current project. (The image name should look like dockercompose13174763213979636238_newswebsite and the container name should be NewsWebsite)
+2. `docker container inspect <containerId>` - will show info specific to the container.  In the Mounts section look for a Mount with  "Type": "volume"
+
+Should look something like this:
+```
+            {
+                "Type": "volume",
+                "Name": "8fe40fd0acb6c9555a06ed0a5231fa1673db228506b60998685177e1faf42fcc",
+                "Source": "C:\\ProgramData\\Docker\\volumes\\8fe40fd0acb6c9555a06ed0a5231fa1673db228506b60998685177e1faf42fcc\\_data",
+                "Destination": "c:\\logs",
+                "Driver": "local",
+                "Mode": "",
+                "RW": true,
+                "Propagation": ""
+            },
+```
+Get the `Source` path (if you are navigating to it by using the Windows Explorer you will need to remove the double slashes and leave only one slash as a delimiter).
+You will see the `NewsWebsiteLogs.txt` that contains the logged information.
+The log name can be specified from the `appsettings.Development.json` file, located in the `NewsWebsite` project.
