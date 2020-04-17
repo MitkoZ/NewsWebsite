@@ -9,6 +9,8 @@ using NewsWebsite.ViewModels.News.Comments;
 using NewsWebsite.Utils;
 using Services.Transactions.Interfaces;
 using NewsWebsite.ViewModels.Users;
+using NewsWebsite.Auth;
+using Microsoft.AspNetCore.Authorization;
 
 namespace NewsWebsite.Controllers.WebApi
 {
@@ -72,6 +74,7 @@ namespace NewsWebsite.Controllers.WebApi
         }
 
         [HttpPut("{id}")]
+        [ItemOwnerAuthorize(typeof(ICommentsService), Roles = RoleConstants.Administrator + RoleConstants.Delimiter + RoleConstants.Reporter + RoleConstants.Delimiter + RoleConstants.NormalUser)]
         public async Task<ActionResult<GetCommentViewModel>> PutComment(PutCommentViewModel putCommentViewModel)
         {
 
@@ -92,6 +95,7 @@ namespace NewsWebsite.Controllers.WebApi
         }
 
         [HttpPost("{newsId}")]
+        [Authorize]
         public async Task<ActionResult<GetCommentViewModel>> PostComment([FromRoute]string newsId, PostCommentViewModel postCommentViewModel)
         {
             Comment commentDb = new Comment
@@ -119,6 +123,7 @@ namespace NewsWebsite.Controllers.WebApi
         }
 
         [HttpDelete("{id}")]
+        [ItemOwnerAuthorize(typeof(ICommentsService), Roles = RoleConstants.Administrator + RoleConstants.Delimiter + RoleConstants.Reporter)]
         public async Task<ActionResult<Comment>> DeleteComment([FromRoute]string id)
         {
             this.commentsService.Delete(id);
@@ -133,6 +138,7 @@ namespace NewsWebsite.Controllers.WebApi
         }
 
         [HttpPost("{id}/upvote")]
+        [Authorize]
         public async Task<ActionResult<GetCommentViewModel>> UpvoteAsync([FromRoute] string id)
         {
             Comment commentDb = await this.commentsService.GetAll(x => x.Id == id)
@@ -159,6 +165,7 @@ namespace NewsWebsite.Controllers.WebApi
         }
 
         [HttpDelete("{id}/downvote")]
+        [Authorize]
         public async Task<ActionResult<GetCommentViewModel>> DownvoteAsync([FromRoute] string id)
         {
             Comment commentDb = await this.commentsService.GetAll(x => x.Id == id)

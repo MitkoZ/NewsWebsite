@@ -1,6 +1,7 @@
 ﻿using DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
+using Services.Auth.Interfaces;
 using Services.CRUD.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -135,6 +136,14 @@ namespace Services.CRUD
         private void UndeleteVote(Vote vote)
         {
             vote.IsDeleted = false;
+        }
+
+        public async Task<string> GetOwnerId(string itemId)
+        {
+            return (await this.repository
+                .GetAll(comment => comment.Id == itemId)
+                .FirstOrDefaultAsync())
+                .UserId;
         }
     }
 }

@@ -8,6 +8,8 @@ using NewsWebsite.ViewModels.News;
 using Services.CRUD.Interfaces;
 using NewsWebsite.Utils;
 using Services.Transactions.Interfaces;
+using NewsWebsite.Auth;
+using Microsoft.AspNetCore.Authorization;
 
 namespace NewsWebsite.Controllers
 {
@@ -77,6 +79,7 @@ namespace NewsWebsite.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateAsync(CreateNewsViewModel createNewsViewModel)
         {
             if (!ModelState.IsValid)
@@ -112,6 +115,7 @@ namespace NewsWebsite.Controllers
         }
 
         [HttpGet]
+        [ItemOwnerAuthorize(typeof(INewsService), Roles = RoleConstants.Administrator + RoleConstants.Delimiter + RoleConstants.Reporter)]
         public IActionResult Edit(string id)
         {
             News newsDb = this.newsService.GetAll(x => x.Id == id).FirstOrDefault();
@@ -132,6 +136,7 @@ namespace NewsWebsite.Controllers
         }
 
         [HttpPost]
+        [ItemOwnerAuthorize(typeof(INewsService), Roles = RoleConstants.Administrator + RoleConstants.Delimiter + RoleConstants.Reporter)]
         public async Task<IActionResult> EditAsync(EditNewsViewModel editNewsViewModel)
         {
             if (!ModelState.IsValid)
@@ -171,6 +176,7 @@ namespace NewsWebsite.Controllers
         }
 
         [HttpPost]
+        [ItemOwnerAuthorize(typeof(INewsService), Roles = RoleConstants.Administrator + RoleConstants.Delimiter + RoleConstants.Reporter)]
         public async Task<IActionResult> DeleteAsync(string id)
         {
             this.newsService.Delete(id);

@@ -1,6 +1,7 @@
 ﻿@model List<NewsWebsite.ViewModels.News.DetailsNewsViewModel>
 @inject Services.CRUD.Interfaces.IUsersService usersService;
 @using System.Security.Claims;
+@using NewsWebsite.Auth;
 
 @{
     ViewData["Title"] = "ListAll";
@@ -18,7 +19,7 @@
     {
         string currentUserId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (await this.usersService.IsInRoleAsync(currentUserId, "Administrator") || await this.usersService.IsInRoleAsync(currentUserId, "Reporter")) //TODO:Extract magic strings
+        if (await this.usersService.IsInRoleAsync(currentUserId, "Administrator") || await this.usersService.IsInRoleAsync(currentUserId, RoleConstants.Reporter))
         {
             <a asp-action="Create" class="btn btn-primary">Create News</a>
         }

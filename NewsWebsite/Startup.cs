@@ -16,9 +16,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using NewsWebsite.Auth;
+using NewsWebsite.Auth.Interfaces;
+using NewsWebsite.Utils;
 using Repositories;
 using Repositories.Interfaces;
 using Serilog;
+using Services.Auth.Interfaces;
 using Services.CRUD;
 using Services.CRUD.Interfaces;
 using Services.SMTP;
@@ -70,7 +74,17 @@ namespace NewsWebsite
                 options.SignIn.RequireConfirmedEmail = true;
             });
 
-            services.AddControllersWithViews();
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = new PathString("/Users/Login");
+                options.AccessDeniedPath = new PathString("/Users/AccessDenied");
+            });
+
+            services.AddControllersWithViews(options =>
+            {
+                options.Filters.Add(typeof(ResourceAuthorizationFilter));
+            });
+
             services.AddLogging(logging =>
             {
                 ILogger logger = new LoggerConfiguration()
@@ -90,9 +104,9 @@ namespace NewsWebsite
 
         private void AddServices(IServiceCollection services)
         {
-            services.AddScoped<IUsersService, UsersService>();
-            services.AddScoped<INewsService, NewsService>();
-            services.AddScoped<ICommentsService, CommentsService>();
+            services.AddScoped<IUsersService, IUserProvider, UsersService>();
+            services.AddScoped<INewsService, IItemLookup, NewsService>();
+            services.AddScoped<ICommentsService, IItemLookup, CommentsService>();
             services.AddSingleton<ISMTPService, SMTPService>();
         }
 
@@ -255,6 +269,26 @@ namespace NewsWebsite
                        LockoutEnabled = false,
                        AccessFailedCount = 0,
                        IsDeleted = false
+                   },
+
+                   new User
+                   {
+                       Id = "7058514a-2979-46dc-81c2-d315d6b8a47b",
+                       UserName = "ivan",
+                       NormalizedUserName = "IVAN",
+                       Email = "ivan@dummyemail.com",
+                       NormalizedEmail = "IVAN@DUMMYEMAIL.COM",
+                       EmailConfirmed = true,
+                       PasswordHash = "AQAAAAEAACcQAAAAEMsZdJezFiiNqBWFFjRJ4o+VkCV8OYB4U6QBj1HHDxh1Ul3cHAA5wXigO00KuLcVBA==",
+                       SecurityStamp = "CMSWCJ6WNBNAOOYYJUFTN2LBO7VQQKDC",
+                       ConcurrencyStamp = "9a072ccc-0c9f-4a71-bfec-fcf3a3cd4339",
+                       PhoneNumber = null,
+                       PhoneNumberConfirmed = true,
+                       TwoFactorEnabled = false,
+                       LockoutEnd = null,
+                       LockoutEnabled = false,
+                       AccessFailedCount = 0,
+                       IsDeleted = false
                    }
 
                 };
@@ -262,8 +296,6 @@ namespace NewsWebsite
                 newsDbContext.Users.AddRange(usersDb);
 
                 // When seeding the users, set the emails and phones to confirmed, so we don't have to deal with locked seeded users
-
-                // TODO: add admin role to the admin user
             }
 
             if (newsDbContext.Roles.Count() == 0)
@@ -273,7 +305,7 @@ namespace NewsWebsite
                     new IdentityRole
                     {
                         Id = "801d6f4e-483a-4395-a7ca-8dc2c00d4edf",
-                        Name = "Administrator",
+                        Name = RoleConstants.Administrator,
                         NormalizedName = "ADMINISTRATOR",
                         ConcurrencyStamp = "cb6da3fb-c0a5-4066-a9bf-6a739c0e9ce8"
                     },
@@ -281,7 +313,7 @@ namespace NewsWebsite
                     new IdentityRole
                     {
                         Id = "164c0c3e-7f24-438f-9708-b7e69c6d2b4a",
-                        Name = "Reporter",
+                        Name = RoleConstants.Reporter,
                         NormalizedName = "REPORTER",
                         ConcurrencyStamp = "e1728ad7-2b42-41a7-a579-06c38f20a112"
                     },
@@ -289,13 +321,11 @@ namespace NewsWebsite
                     new IdentityRole
                     {
                         Id = "cf9259d6-a41e-4629-82d5-ea94dad436f1",
-                        Name = "NormalUser",
+                        Name = RoleConstants.NormalUser,
                         NormalizedName = "NORMALUSER",
                         ConcurrencyStamp = "6a5e1a2a-6af3-404c-ab56-1559cdf96ac5"
                     }
                 };
-
-                //TODO: Extract magic strings (the user roles)
 
                 newsDbContext.Roles.AddRange(identityRolesDb);
             }
@@ -326,6 +356,12 @@ namespace NewsWebsite
                     {
                         UserId = "7a5e4dee-c591-4207-8e06-61fcea628ade", // gosho UserName
                         RoleId = "cf9259d6-a41e-4629-82d5-ea94dad436f1" // NormalUser Role
+                    },
+
+                    new IdentityUserRole<string>
+                    {
+                        UserId = "7058514a-2979-46dc-81c2-d315d6b8a47b", // ivan UserName
+                        RoleId = "164c0c3e-7f24-438f-9708-b7e69c6d2b4a" // Reporter Role
                     }
                 };
 

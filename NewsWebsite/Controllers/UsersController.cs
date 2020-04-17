@@ -9,6 +9,8 @@ using NewsWebsite.Utils;
 using Microsoft.Extensions.Logging;
 using Services.SMTP.Interfaces;
 using Services.Transactions.Interfaces;
+using NewsWebsite.Auth;
+using Microsoft.AspNetCore.Authorization;
 
 namespace NewsWebsite.Controllers
 {
@@ -61,7 +63,7 @@ namespace NewsWebsite.Controllers
                 string emailConfirmation = string.Format("Hi {0}. You have just registered to NewsWebsite. To confirm your email address, please go to: {1}", userDb.UserName, emailConfirmationLink);
                 this.smtpService.SendEmail("NewsWebsite Email Confirmation", emailConfirmation, userViewModel.Email);
 
-                UsersServiceResultDTO addToRoleResultDTO = await this.usersService.AddToRoleAsync(userDb, "NormalUser"); //TODO: extract magic string
+                UsersServiceResultDTO addToRoleResultDTO = await this.usersService.AddToRoleAsync(userDb, RoleConstants.NormalUser);
                 if (!addToRoleResultDTO.IsSucceed)
                 {
                     base.AddValidationErrorsToModelState(addToRoleResultDTO.ErrorMessages);
@@ -116,7 +118,7 @@ namespace NewsWebsite.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginUserViewModel loginUserViewModel)
+        public async Task<IActionResult> Login(LoginUserViewModel loginUserViewModel, string returnUrl)
         {
             try
             {
@@ -141,6 +143,11 @@ namespace NewsWebsite.Controllers
 
                 TempData["SuccessMessage"] = string.Format("Welcome {0}", loginUserViewModel.Username);
 
+                if (!string.IsNullOrWhiteSpace(returnUrl))
+                {
+                    return LocalRedirect(returnUrl); // use LocalRedirect to prevent open redirect attack
+                }
+
                 return base.RedirectToIndexActionInHomeController();
             }
             catch (Exception ex)
@@ -152,6 +159,7 @@ namespace NewsWebsite.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> LogoutAsync()
         {
             await this.usersService.SignOutAsync();
@@ -215,6 +223,12 @@ namespace NewsWebsite.Controllers
 
             TempData["SuccessMessage"] = "Password set successfully!";
             return RedirectToIndexActionInHomeController();
+        }
+
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            return RedirectToIndexActionInHomeController(); // for security reasons, we do not show an Access Denied page
         }
     }
 }
