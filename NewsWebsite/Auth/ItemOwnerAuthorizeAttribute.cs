@@ -67,7 +67,7 @@ namespace NewsWebsite.Auth
                     return value.ToString(); // the value was found
                 }
 
-                object complexTypeValue = argumentsDictionary[key];
+                object complexTypeValue = argumentsDictionary[key]; // the null check is just to be sure the value doesn't come null from the front-end
                 if (complexTypeValue != null && complexTypeValue.GetType().IsClass && IsUserDefined(complexTypeValue.GetType())) // it's a complex type, try searching inside it
                 {
                     return GetPropertyValue(propertyName, complexTypeValue.ToDictionary());
