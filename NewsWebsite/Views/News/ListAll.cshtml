@@ -19,7 +19,7 @@
     {
         string currentUserId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (await this.usersService.IsInRoleAsync(currentUserId, "Administrator") || await this.usersService.IsInRoleAsync(currentUserId, RoleConstants.Reporter))
+        if (await this.usersService.IsInRoleAsync(currentUserId, RoleConstants.Administrator) || await this.usersService.IsInRoleAsync(currentUserId, RoleConstants.Reporter))
         {
             <a asp-action="Create" class="btn btn-primary">Create News</a>
         }
@@ -86,7 +86,7 @@
                 {
                     string currentUserId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                    if (currentUserId == item.ReporterId || await this.usersService.IsInRoleAsync(currentUserId, "Administrator"))
+                    if (currentUserId == item.ReporterId || await this.usersService.IsInRoleAsync(currentUserId, RoleConstants.Administrator))
                     {
                         <td>
                             @Html.ActionLink("Edit", "Edit", new { id = item.Id })
