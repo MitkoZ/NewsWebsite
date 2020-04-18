@@ -68,7 +68,7 @@ namespace NewsWebsite.Auth
                 }
 
                 object complexTypeValue = argumentsDictionary[key];
-                if (complexTypeValue != null && complexTypeValue.GetType().IsClass && IsUserDefined(argumentsDictionary[key].GetType())) // it's a complex type, try searching inside it
+                if (complexTypeValue != null && complexTypeValue.GetType().IsClass && IsUserDefined(complexTypeValue.GetType())) // it's a complex type, try searching inside it
                 {
                     return GetPropertyValue(propertyName, complexTypeValue.ToDictionary());
                 }
