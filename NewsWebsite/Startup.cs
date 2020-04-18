@@ -127,8 +127,8 @@ namespace NewsWebsite
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
-                //app.UseExceptionHandler("/Home/Error"); // Uncomment this to log the error and redirect to custom error page
+                //app.UseDeveloperExceptionPage();
+                app.UseExceptionHandler("/Home/Error"); // Uncomment this to log the errors and redirect to custom error page
             }
             else
             {
