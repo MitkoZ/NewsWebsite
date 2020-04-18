@@ -48,6 +48,9 @@ Since we are using the .NET integrated tools for Docker and another assembly for
 
 ## Logging
 The custom exception logger uses Docker volumes, so that even if the container is removed, the logs will stay.
+### Activating the logger
+We use centralized exception handling that redirects to the `HomeController class, Error Action method` when an unhandled exception occurs. The `Error` action method logs the error, sets a generic user-friendly error message for the front-end and redirects to the `Index` action method.
+Obviously, we can't use the user-friendly error page and the Developer error page at once. To activate the error logging and the user-friendly page, uncomment the following line in the in the `Startup.cs file, Configure method`: `app.UseExceptionHandler("/Home/Error"); // Uncomment this to log the errors and redirect to custom error page` and comment out the following line `app.UseDeveloperExceptionPage();`. If you want to get back your Developer error page, do the opposite.
 ### Locating the custom logs on the host PC
 1. `docker container ls` - will list all the containers. Grab the Container Id that uses the image created by the Docker for the current project. (The image name should look like dockercompose13174763213979636238_newswebsite and the container name should be NewsWebsite)
 2. `docker container inspect <containerId>` - will show info specific to the container.  In the Mounts section look for a Mount with  "Type": "volume"
