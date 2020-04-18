@@ -1,11 +1,12 @@
 ﻿using DataAccess.Entities;
+using Services.Auth.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Services.CRUD.Interfaces
 {
-    public interface ICommentsService : IBaseCRUDService<Comment>
+    public interface ICommentsService : IBaseCRUDService<Comment>, IItemLookup
     {
         /// <summary>
         /// Gets the pinged users of the content of a comment

@@ -1,5 +1,6 @@
 ﻿@inject Services.CRUD.Interfaces.IUsersService usersService;
 @using System.Security.Claims;
+@using NewsWebsite.Auth;
 
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
     <div class="container">
@@ -30,7 +31,7 @@
 
                     string currentUserId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                    if (await this.usersService.IsInRoleAsync(currentUserId, "Administrator"))
+                    if (await this.usersService.IsInRoleAsync(currentUserId, RoleConstants.Administrator))
                     {
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Reporters" asp-action="Register">Register a Reporter</a>

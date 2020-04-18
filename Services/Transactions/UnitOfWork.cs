@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Services.Transactions
 {
     /// <summary>
-    /// Since we use dependency injection, the same dbContext will be injecteds in the UnitOfWork and we do not need to manually create the repositories
+    /// Since we use dependency injection, the same dbContext will be injected in the UnitOfWork and we do not need to manually create the repositories
     /// </summary>
     public class UnitOfWork : IUnitOfWork
     {

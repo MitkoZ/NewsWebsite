@@ -1,6 +1,8 @@
 ﻿using DataAccess.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Repositories.Interfaces;
+using Services.Auth.Interfaces;
 using Services.CRUD.DTOs;
 using Services.CRUD.Interfaces;
 using System.Collections.Generic;
@@ -158,6 +160,13 @@ namespace Services.CRUD
             bool isCorrectPassword = await this.userManager.CheckPasswordAsync(userDb, password);
 
             return isCorrectPassword;
+        }
+
+        public string GetCurrentUserId(HttpContext context)
+        {
+            string userId = context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            return userId;
         }
     }
 }
