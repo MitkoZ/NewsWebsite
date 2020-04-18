@@ -124,7 +124,7 @@ namespace NewsWebsite.Controllers.WebApi
 
         [HttpDelete("{id}")]
         [ItemOwnerAuthorize(typeof(ICommentsService), Roles = RoleConstants.Administrator + RoleConstants.Delimiter + RoleConstants.Reporter + RoleConstants.Delimiter + RoleConstants.NormalUser)]
-        public async Task<ActionResult<Comment>> DeleteComment([FromRoute]string id)
+        public async Task<IActionResult> DeleteComment([FromRoute]string id)
         {
             this.commentsService.Delete(id);
             bool isDeleted = await this.unitOfWork.CommitAsync();
