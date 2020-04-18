@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using DataAccess.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using NewsWebsite.Auth;
 using NewsWebsite.Utils;
 using NewsWebsite.ViewModels.Reporters;
@@ -18,7 +17,7 @@ namespace NewsWebsite.Controllers
         private readonly ISMTPService smtpService;
         private readonly IUsersService usersService;
 
-        public ReportersController(IUnitOfWork unitOfWork, ILogger<ReportersController> logger, IUsersService usersService, ISMTPService smtpService) : base(logger)
+        public ReportersController(IUnitOfWork unitOfWork, IUsersService usersService, ISMTPService smtpService)
         {
             this.unitOfWork = unitOfWork;
             this.smtpService = smtpService;

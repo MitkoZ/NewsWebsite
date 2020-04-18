@@ -1,8 +1,8 @@
 ﻿@*TODO: make a facade for the viewbag and tempdata messages*@
-@if (ViewBag.ErrorMessage != null) // We use ViewBag, because we want the error to be deleted after redirect
+@if (TempData["ErrorMessage"] != null)
 {
     <div class="alert alert-danger fade show" role="alert">
-        @ViewBag.ErrorMessage
+        @TempData["ErrorMessage"]
     </div>
 }
 else if (TempData["SuccessMessage"] != null) // We use TempData, because it doesn't get deleted on first redirect

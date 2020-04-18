@@ -20,7 +20,7 @@ namespace NewsWebsite.Controllers
         private readonly IUsersService usersService;
         private readonly ISMTPService smtpService;
 
-        public UsersController(IUnitOfWork unitOfWork, ILogger<BaseViewsController> logger, IUsersService usersService, ISMTPService smtpService) : base(logger)
+        public UsersController(IUnitOfWork unitOfWork, IUsersService usersService, ISMTPService smtpService)
         {
             this.unitOfWork = unitOfWork;
             this.usersService = usersService;
@@ -37,48 +37,39 @@ namespace NewsWebsite.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterUserViewModel userViewModel)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                if (!ModelState.IsValid)
-                {
-                    return View(userViewModel);
-                }
-
-                User userDb = new User
-                {
-                    UserName = userViewModel.Username,
-                    Email = userViewModel.Email
-                };
-
-                UsersServiceResultDTO registerResultDTO = await usersService.CreateAsync(userDb, userViewModel.Password);
-
-                if (!registerResultDTO.IsSucceed)
-                {
-                    base.AddValidationErrorsToModelState(registerResultDTO.ErrorMessages);
-                    return View(userViewModel);
-                }
-
-                string emailConfirmationToken = await usersService.GenerateEmailConfirmationTokenAsync(userDb);
-                string emailConfirmationLink = this.Url.Action(nameof(ConfirmEmail), this.GetControllerName(nameof(UsersController)), new { userDb.Email, emailConfirmationToken }, Request.Scheme);
-                string emailConfirmation = string.Format("Hi {0}. You have just registered to NewsWebsite. To confirm your email address, please go to: {1}", userDb.UserName, emailConfirmationLink);
-                this.smtpService.SendEmail("NewsWebsite Email Confirmation", emailConfirmation, userViewModel.Email);
-
-                UsersServiceResultDTO addToRoleResultDTO = await this.usersService.AddToRoleAsync(userDb, RoleConstants.NormalUser);
-                if (!addToRoleResultDTO.IsSucceed)
-                {
-                    base.AddValidationErrorsToModelState(addToRoleResultDTO.ErrorMessages);
-                    return View(userViewModel);
-                }
-
-                TempData["SuccessMessage"] = "User registered successfully! In order to log in, please check the confirmation email that you have just received.";
-                return base.RedirectToIndexActionInHomeController();
-            }
-            catch (Exception ex)
-            {
-                ViewBag.ErrorMessage = "Ooops, something went wrong";
-                logger.LogError(ex, "A exception with the following input occured: {@userViewModel}", userViewModel);
                 return View(userViewModel);
             }
+
+            User userDb = new User
+            {
+                UserName = userViewModel.Username,
+                Email = userViewModel.Email
+            };
+
+            UsersServiceResultDTO registerResultDTO = await usersService.CreateAsync(userDb, userViewModel.Password);
+
+            if (!registerResultDTO.IsSucceed)
+            {
+                base.AddValidationErrorsToModelState(registerResultDTO.ErrorMessages);
+                return View(userViewModel);
+            }
+
+            string emailConfirmationToken = await usersService.GenerateEmailConfirmationTokenAsync(userDb);
+            string emailConfirmationLink = this.Url.Action(nameof(ConfirmEmail), this.GetControllerName(nameof(UsersController)), new { userDb.Email, emailConfirmationToken }, Request.Scheme);
+            string emailConfirmation = string.Format("Hi {0}. You have just registered to NewsWebsite. To confirm your email address, please go to: {1}", userDb.UserName, emailConfirmationLink);
+            this.smtpService.SendEmail("NewsWebsite Email Confirmation", emailConfirmation, userViewModel.Email);
+
+            UsersServiceResultDTO addToRoleResultDTO = await this.usersService.AddToRoleAsync(userDb, RoleConstants.NormalUser);
+            if (!addToRoleResultDTO.IsSucceed)
+            {
+                base.AddValidationErrorsToModelState(addToRoleResultDTO.ErrorMessages);
+                return View(userViewModel);
+            }
+
+            TempData["SuccessMessage"] = "User registered successfully! In order to log in, please check the confirmation email that you have just received.";
+            return base.RedirectToIndexActionInHomeController();
         }
 
         [HttpGet]
@@ -93,7 +84,7 @@ namespace NewsWebsite.Controllers
 
             if (userDb == null)
             {
-                ViewBag.ErrorMessage = "A user with this email doesn't exist!";
+                TempData["ErrorMessage"] = "A user with this email doesn't exist!";
                 return View("ValidationErrorsWithoutSpecificModel");
             }
 
@@ -120,42 +111,40 @@ namespace NewsWebsite.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginUserViewModel loginUserViewModel, string returnUrl)
         {
-            try
+            SignInResultDTO signInResultDTO = await this.usersService.PasswordSignInAsync(loginUserViewModel.Username, loginUserViewModel.Password);
+            throw new System.Exception("ff");
+
+            if (signInResultDTO.IsNotAllowed)
             {
-                SignInResultDTO signInResultDTO = await this.usersService.PasswordSignInAsync(loginUserViewModel.Username, loginUserViewModel.Password);
+                User userDb = await this.usersService.FindByUsername(loginUserViewModel.Username);
 
-                if (signInResultDTO.IsNotAllowed)
+                if (!userDb.EmailConfirmed && await this.usersService.CheckPasswordAsync(userDb, loginUserViewModel.Password)) // we also check if the password is correct, to prevent account enumeration
                 {
-                    User userDb = await this.usersService.FindByUsername(loginUserViewModel.Username);
-
-                    if (!userDb.EmailConfirmed && await this.usersService.CheckPasswordAsync(userDb, loginUserViewModel.Password)) // we also check if the password is correct, to prevent account enumeration
-                    {
-                        ViewBag.ErrorMessage = "Not confirmed email! Please confirm it";
-                        return View(loginUserViewModel);
-                    }
-                }
-
-                if (!signInResultDTO.IsSucceed)
-                {
-                    ViewBag.ErrorMessage = "Wrong username or password";
+                    TempData["ErrorMessage"] = "Not confirmed email! Please confirm it";
                     return View(loginUserViewModel);
                 }
-
-                TempData["SuccessMessage"] = string.Format("Welcome {0}", loginUserViewModel.Username);
-
-                if (!string.IsNullOrWhiteSpace(returnUrl))
-                {
-                    return LocalRedirect(returnUrl); // use LocalRedirect to prevent open redirect attack
-                }
-
-                return base.RedirectToIndexActionInHomeController();
             }
-            catch (Exception ex)
+
+            if (!signInResultDTO.IsSucceed)
             {
-                ViewBag.ErrorMessage = "Ooops, something went wrong";
-                logger.LogError(ex, "A exception with the following input occured: {@loginUserViewModel}", loginUserViewModel);
+                TempData["ErrorMessage"] = "Wrong username or password";
                 return View(loginUserViewModel);
             }
+
+            TempData["SuccessMessage"] = string.Format("Welcome {0}", loginUserViewModel.Username);
+
+            if (!string.IsNullOrWhiteSpace(returnUrl))
+            {
+                return LocalRedirect(returnUrl); // use LocalRedirect to prevent open redirect attack
+            }
+
+            return base.RedirectToIndexActionInHomeController();
+            //}
+            //catch (Exception ex)
+            //{
+            //    logger.LogError(ex, "A exception with the following input occured: {@loginUserViewModel}", loginUserViewModel);
+            //    return View(loginUserViewModel);
+            //}
         }
 
         [HttpPost]

@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using DataAccess.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using NewsWebsite.ViewModels.News;
 using Services.CRUD.Interfaces;
 using NewsWebsite.Utils;
@@ -18,7 +17,7 @@ namespace NewsWebsite.Controllers
         private readonly IUnitOfWork unitOfWork;
         private readonly INewsService newsService;
 
-        public NewsController(IUnitOfWork unitOfWork, INewsService newsService, ILogger<NewsController> logger) : base(logger)
+        public NewsController(IUnitOfWork unitOfWork, INewsService newsService)
         {
             this.unitOfWork = unitOfWork;
             this.newsService = newsService;
@@ -106,7 +105,7 @@ namespace NewsWebsite.Controllers
 
             if (!isSaved)
             {
-                ViewBag.ErrorMessage = "Ooops, something went wrong";
+                TempData["ErrorMessage"] = "Ooops, something went wrong";
                 return View(createNewsViewModel);
             }
 
@@ -167,7 +166,7 @@ namespace NewsWebsite.Controllers
             bool isSaved = await this.unitOfWork.CommitAsync();
             if (!isSaved)
             {
-                ViewBag.ErrorMessage = "Ooops, something went wrong";
+                TempData["ErrorMessage"] = "Ooops, something went wrong";
                 return View(editNewsViewModel);
             }
 
