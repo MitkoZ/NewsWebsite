@@ -74,7 +74,7 @@ namespace NewsWebsite.Controllers.WebApi
         }
 
         [HttpPut("{id}")]
-        [ItemOwnerAuthorize(typeof(ICommentsService), Roles = RoleConstants.Administrator + RoleConstants.Delimiter + RoleConstants.Reporter + RoleConstants.Delimiter + RoleConstants.NormalUser)]
+        [ItemOwnerAuthorize(typeof(ICommentsService), idArgumentName: nameof(PutCommentViewModel.Id), Roles = RoleConstants.Administrator + RoleConstants.Delimiter + RoleConstants.Reporter + RoleConstants.Delimiter + RoleConstants.NormalUser)]
         public async Task<ActionResult<GetCommentViewModel>> PutComment(PutCommentViewModel putCommentViewModel)
         {
 

@@ -136,7 +136,7 @@ namespace NewsWebsite.Controllers
         }
 
         [HttpPost]
-        [ItemOwnerAuthorize(typeof(INewsService), Roles = RoleConstants.Administrator + RoleConstants.Delimiter + RoleConstants.Reporter)]
+        [ItemOwnerAuthorize(typeof(INewsService), idArgumentName: nameof(EditNewsViewModel.Id), Roles = RoleConstants.Administrator + RoleConstants.Delimiter + RoleConstants.Reporter)]
         public async Task<IActionResult> EditAsync(EditNewsViewModel editNewsViewModel)
         {
             if (!ModelState.IsValid)
