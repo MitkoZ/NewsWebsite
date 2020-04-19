@@ -9,6 +9,8 @@ using NewsWebsite.Utils;
 using Services.Transactions.Interfaces;
 using NewsWebsite.Auth;
 using Microsoft.AspNetCore.Authorization;
+using ReflectionIT.Mvc.Paging;
+using Microsoft.AspNetCore.Routing;
 
 namespace NewsWebsite.Controllers
 {
@@ -24,12 +26,18 @@ namespace NewsWebsite.Controllers
         }
 
         [HttpGet]
-        public IActionResult ListAll()
+        public IActionResult Index(string filter, int pageindex = 1, string sortExpression = "Title")
         {
-            List<News> newsDbCollection = this.newsService.GetAll().ToList();
+            IQueryable<News> newsDbCollection = this.newsService.GetAll();
+
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                newsDbCollection = newsDbCollection.Where(x => x.Title.Contains(filter));
+            }
+
             List<DetailsNewsViewModel> detailsNewsViewModels = new List<DetailsNewsViewModel>();
 
-            foreach (News newsDb in newsDbCollection)
+            foreach (News newsDb in newsDbCollection.ToList())
             {
                 DetailsNewsViewModel listNewsViewModel = new DetailsNewsViewModel
                 {
@@ -45,7 +53,12 @@ namespace NewsWebsite.Controllers
                 detailsNewsViewModels.Add(listNewsViewModel);
             }
 
-            return View(detailsNewsViewModels);
+            PagingList<DetailsNewsViewModel> pagingListViewModels = PagingList.Create(detailsNewsViewModels, 3, pageindex, sortExpression, nameof(DetailsNewsViewModel.Title));
+            pagingListViewModels.RouteValue = new RouteValueDictionary {
+                { "filter", filter }
+            };
+
+            return View(pagingListViewModels);
         }
 
         [HttpGet]

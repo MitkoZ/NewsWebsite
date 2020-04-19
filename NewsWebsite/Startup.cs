@@ -17,6 +17,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using NewsWebsite.Auth;
 using NewsWebsite.Utils;
+using ReflectionIT.Mvc.Paging;
 using Repositories;
 using Repositories.Interfaces;
 using Serilog;
@@ -98,6 +99,13 @@ namespace NewsWebsite
             AddRepositories(services);
             AddServices(services);
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            services.AddPaging(options => {
+                options.ViewName = "Bootstrap4";
+                options.PageParameterName = "pageindex";
+                options.HtmlIndicatorDown = " <span>&darr;</span>";
+                options.HtmlIndicatorUp = " <span>&uarr;</span>";
+            });
         }
 
         private void AddServices(IServiceCollection services)
