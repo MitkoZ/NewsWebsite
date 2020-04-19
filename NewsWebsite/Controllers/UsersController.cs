@@ -112,7 +112,6 @@ namespace NewsWebsite.Controllers
         public async Task<IActionResult> Login(LoginUserViewModel loginUserViewModel, string returnUrl)
         {
             SignInResultDTO signInResultDTO = await this.usersService.PasswordSignInAsync(loginUserViewModel.Username, loginUserViewModel.Password);
-            throw new System.Exception("ff");
 
             if (signInResultDTO.IsNotAllowed)
             {
@@ -139,12 +138,6 @@ namespace NewsWebsite.Controllers
             }
 
             return base.RedirectToIndexActionInHomeController();
-            //}
-            //catch (Exception ex)
-            //{
-            //    logger.LogError(ex, "A exception with the following input occured: {@loginUserViewModel}", loginUserViewModel);
-            //    return View(loginUserViewModel);
-            //}
         }
 
         [HttpPost]
