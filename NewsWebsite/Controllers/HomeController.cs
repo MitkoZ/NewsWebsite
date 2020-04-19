@@ -1,11 +1,11 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using NewsWebsite.ViewModels;
+using Newtonsoft.Json;
 
 namespace NewsWebsite.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseViewsController
     {
         private readonly ILogger<HomeController> logger;
 
@@ -19,15 +19,12 @@ namespace NewsWebsite.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            IExceptionHandlerPathFeature exceptionHandlerPathFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+            logger.LogError(exceptionHandlerPathFeature.Error, "An exception with the following input occured: HttpContext.Request.Form: {@Form}, HttpContext.Request.Query: {@Query} at the following path: {@Path}", JsonConvert.SerializeObject(HttpContext.Request.Form), JsonConvert.SerializeObject(HttpContext.Request.Query), exceptionHandlerPathFeature.Path);
+            TempData["ErrorMessage"] = "Ooops, something went wrong";
+            return RedirectToIndexActionInHomeController();
         }
     }
 }

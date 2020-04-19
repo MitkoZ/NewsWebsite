@@ -9,7 +9,6 @@ using DataAccess.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -17,7 +16,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using NewsWebsite.Auth;
-using NewsWebsite.Auth.Interfaces;
 using NewsWebsite.Utils;
 using Repositories;
 using Repositories.Interfaces;
@@ -85,7 +83,7 @@ namespace NewsWebsite
                 options.Filters.Add(typeof(ResourceAuthorizationFilter));
             });
 
-            services.AddLogging(logging =>
+            services.AddLogging(services =>
             {
                 ILogger logger = new LoggerConfiguration()
                                         .WriteTo.Console()
@@ -93,7 +91,7 @@ namespace NewsWebsite
                                         .MinimumLevel.Is(Serilog.Events.LogEventLevel.Error)
                                         .CreateLogger();
 
-                logging.AddSerilog(logger);
+                services.AddSerilog(logger);
             });
 
             ConfigureOptions(services);
@@ -128,10 +126,10 @@ namespace NewsWebsite
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                //app.UseExceptionHandler("/Home/Error"); // Uncomment this to use the custom exception logging and redirect to custom error page. You will also have to comment out app.UseDeveloperExceptionPage()
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }

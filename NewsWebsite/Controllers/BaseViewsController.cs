@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using NewsWebsite.Utils;
 using System;
 using System.Collections.Generic;
@@ -8,13 +7,6 @@ namespace NewsWebsite.Controllers
 {
     public abstract class BaseViewsController : Controller
     {
-        protected readonly ILogger<BaseViewsController> logger;
-
-        public BaseViewsController(ILogger<BaseViewsController> logger)
-        {
-            this.logger = logger;
-        }
-
         protected IActionResult RedirectToIndexActionInHomeController()
         {
             string homeControllerName = this.GetControllerName(nameof(HomeController));
