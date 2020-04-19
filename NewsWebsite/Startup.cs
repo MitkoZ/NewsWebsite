@@ -83,7 +83,7 @@ namespace NewsWebsite
                 options.Filters.Add(typeof(ResourceAuthorizationFilter));
             });
 
-            services.AddLogging(logging =>
+            services.AddLogging(services =>
             {
                 ILogger logger = new LoggerConfiguration()
                                         .WriteTo.Console()
@@ -91,7 +91,7 @@ namespace NewsWebsite
                                         .MinimumLevel.Is(Serilog.Events.LogEventLevel.Error)
                                         .CreateLogger();
 
-                logging.AddSerilog(logger);
+                services.AddSerilog(logger);
             });
 
             ConfigureOptions(services);
@@ -125,8 +125,8 @@ namespace NewsWebsite
         {
             if (env.IsDevelopment())
             {
-                //app.UseDeveloperExceptionPage();
-                app.UseExceptionHandler("/Home/Error"); // Uncomment this to log the errors and redirect to custom error page and comment out app.UseDeveloperExceptionPage()
+                app.UseDeveloperExceptionPage();
+                //app.UseExceptionHandler("/Home/Error"); // Uncomment this to use the custom exception logging and redirect to custom error page. You will also have to comment out app.UseDeveloperExceptionPage()
             }
             else
             {
