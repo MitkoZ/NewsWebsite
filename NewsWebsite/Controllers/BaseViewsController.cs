@@ -15,7 +15,7 @@ namespace NewsWebsite.Controllers
 
         protected IActionResult RedirectToListAllActionInCurrentController()
         {
-            return RedirectToAction("ListAll"); //TODO: replace with strong typing (nameof) when you make a base listing action 
+            return RedirectToAction(nameof(Index));
         }
 
         protected void AddValidationErrorsToModelState(List<string> errorMessages)
