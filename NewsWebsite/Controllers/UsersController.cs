@@ -9,6 +9,11 @@ using Services.SMTP.Interfaces;
 using Services.Transactions.Interfaces;
 using NewsWebsite.Auth;
 using Microsoft.AspNetCore.Authorization;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using ReflectionIT.Mvc.Paging;
+using System.Linq;
+using Microsoft.AspNetCore.Routing;
 
 namespace NewsWebsite.Controllers
 {
@@ -203,6 +208,97 @@ namespace NewsWebsite.Controllers
 
             TempData["SuccessMessage"] = "Password set successfully!";
             return RedirectToIndexActionInHomeController();
+        }
+
+        [Authorize(Roles = RoleConstants.Administrator)]
+        [HttpGet]
+        public async Task<IActionResult> Index(string filter, int pageindex = 1, string sortExpression = nameof(GetUserViewModel.Fullname))
+        {
+            List<GetUserViewModel> usersViewModels = new List<GetUserViewModel>();
+
+            IQueryable<User> usersDb = this.usersService.GetAll();
+
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                usersDb = usersDb.Where(x => x.UserName.Contains(filter));
+            }
+
+            await usersDb.ForEachAsync(userDb => usersViewModels.Add(
+                new GetUserViewModel
+                {
+                    Id = userDb.Id,
+                    Fullname = userDb.UserName,
+                    Email = userDb.Email
+                }
+             )
+            );
+
+            PagingList<GetUserViewModel> pagingListViewModels = PagingList.Create(usersViewModels, 3, pageindex, sortExpression, nameof(GetUserViewModel.Fullname));
+            pagingListViewModels.RouteValue = new RouteValueDictionary {
+                { "filter", filter }
+            };
+
+            return View(pagingListViewModels);
+        }
+
+        [Authorize(Roles = RoleConstants.Administrator)]
+        [HttpGet]
+        public async Task<IActionResult> ChangePasswordAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                ModelState.AddModelError(string.Empty, "Invalid user id");
+                return RedirectToIndexActionInHomeController();
+            }
+
+
+            User userDb = await usersService.GetAll(x => x.Id == userId)
+                                            .FirstOrDefaultAsync();
+
+            ChangePasswordViewModel changePasswordViewModel = new ChangePasswordViewModel
+            {
+                UserId = userDb.Id,
+                Username = userDb.UserName
+            };
+
+            if (userDb == null)
+            {
+                TempData["ErrorMessage"] = "A user with this id doesn't exist!";
+                return RedirectToIndexActionInHomeController();
+            }
+
+            return View(changePasswordViewModel);
+        }
+
+        [Authorize(Roles = RoleConstants.Administrator)]
+        [HttpPost]
+        public async Task<IActionResult> ChangePasswordAsync(ChangePasswordViewModel changePasswordViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(changePasswordViewModel);
+            }
+
+            User userDb = await usersService.GetAll(x => x.Id == changePasswordViewModel.UserId)
+                                            .FirstOrDefaultAsync();
+
+            if (userDb == null)
+            {
+                TempData["ErrorMessage"] = "A user with this id doesn't exist!";
+                return RedirectToIndexActionInHomeController();
+            }
+
+            string passwordResetToken = await usersService.GeneratePasswordResetTokenAsync(userDb);
+            UsersServiceResultDTO changePasswordResultDTO = await usersService.ResetPasswordAsync(userDb, passwordResetToken, changePasswordViewModel.Password);
+
+            if (!changePasswordResultDTO.IsSucceed)
+            {
+                base.AddValidationErrorsToModelState(changePasswordResultDTO.ErrorMessages);
+                return View(changePasswordViewModel);
+            }
+
+            TempData["SuccessMessage"] = "Password changed successfully!";
+            return RedirectToListAllActionInCurrentController();
         }
 
         [HttpGet]
