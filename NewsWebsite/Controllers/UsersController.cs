@@ -1,12 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using DataAccess.Entities;
 using Services.CRUD.Interfaces;
 using NewsWebsite.ViewModels.Users;
 using Services.CRUD.DTOs;
 using NewsWebsite.Utils;
-using Microsoft.Extensions.Logging;
 using Services.SMTP.Interfaces;
 using Services.Transactions.Interfaces;
 using NewsWebsite.Auth;

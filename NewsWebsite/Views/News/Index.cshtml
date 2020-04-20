@@ -1,4 +1,7 @@
-﻿@model List<NewsWebsite.ViewModels.News.DetailsNewsViewModel>
+﻿@using ReflectionIT.Mvc.Paging
+@using NewsWebsite.ViewModels.News;
+@model PagingList<DetailsNewsViewModel>
+@addTagHelper *, ReflectionIT.Mvc.Paging
 @inject Services.CRUD.Interfaces.IUsersService usersService;
 @using System.Security.Claims;
 @using NewsWebsite.Auth;
@@ -7,6 +10,7 @@
     ViewData["Title"] = "ListAll";
 }
 
+<link rel="stylesheet" type="text/css" href="/node_modules/font-awesome/css/font-awesome.min.css">
 <link rel="stylesheet" type="text/css" href="/node_modules/quill/dist/quill.snow.css">
 <link rel="stylesheet" type="text/css" href="~/css/QuillWYSIWYG.css">
 <script src="/node_modules/quill/dist/quill.js"></script>
@@ -26,23 +30,37 @@
     }
 </p>
 
+<form method="get" class="form-inline">
+    <input name="filter" class="form-control" placeholder="@nameof(DetailsNewsViewModel.Title)"
+           value="@Model.RouteValue["filter"]" />
+
+    <button type="submit" class="btn btn-info">
+        <i class="fa fa-search" aria-hidden="true"></i>
+        Search
+    </button>
+</form>
+
+<nav aria-label="News page navigation">
+    <vc:pager paging-list="@Model"></vc:pager>
+</nav>
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model[0].Title)
+                @Html.SortableHeaderFor(model => model.Title)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model[0].Content)
+                @Html.DisplayNameFor(model => model.Content)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model[0].ReporterName)
+                @Html.SortableHeaderFor(model => model.ReporterName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model[0].CreatedAt)
+                @Html.SortableHeaderFor(model => model.CreatedAt)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model[0].UpdatedAt)
+                @Html.SortableHeaderFor(model => model.UpdatedAt)
             </th>
             <th></th>
             <th></th>
@@ -101,3 +119,7 @@
         }
     </tbody>
 </table>
+
+<nav aria-label="News page navigation">
+    <vc:pager paging-list="@Model" />
+</nav>
