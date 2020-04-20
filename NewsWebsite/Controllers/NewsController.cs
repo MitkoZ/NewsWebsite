@@ -26,7 +26,7 @@ namespace NewsWebsite.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index(string filter, int pageindex = 1, string sortExpression = "Title")
+        public IActionResult Index(string filter, int pageindex = 1, string sortExpression = nameof(DetailsNewsViewModel.Title))
         {
             IQueryable<News> newsDbCollection = this.newsService.GetAll();
 
