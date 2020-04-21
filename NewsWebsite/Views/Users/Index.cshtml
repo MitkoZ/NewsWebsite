@@ -1,0 +1,65 @@
+﻿@using NewsWebsite.ViewModels.Users;
+@model PagingList<GetUserViewModel>
+@using ReflectionIT.Mvc.Paging
+@addTagHelper *, ReflectionIT.Mvc.Paging
+
+@{
+    ViewData["Title"] = "ListAll";
+}
+
+<link rel="stylesheet" type="text/css" href="/node_modules/font-awesome/css/font-awesome.min.css">
+
+<h1>All Users</h1>
+<p>
+    <a class="btn btn-primary" asp-area="" asp-controller="Reporters" asp-action="Register">Register a Reporter</a>
+</p>
+
+<form method="get" class="form-inline">
+    <input name="filter" class="form-control" placeholder="@nameof(GetUserViewModel.Fullname)"
+           value="@Model.RouteValue["filter"]" />
+
+    <button type="submit" class="btn btn-info">
+        <i class="fa fa-search" aria-hidden="true"></i>
+        Search
+    </button>
+</form>
+
+<nav aria-label="Users page navigation">
+    <vc:pager paging-list="@Model"></vc:pager>
+</nav>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.SortableHeaderFor(model => model.Fullname)
+            </th>
+            <th>
+                @Html.SortableHeaderFor(model => model.Email)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Fullname)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+
+                <td>
+                    @Html.ActionLink("Change Password", "ChangePassword", new { userId = item.Id })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<nav aria-label="Users page navigation">
+    <vc:pager paging-list="@Model"></vc:pager>
+</nav>
