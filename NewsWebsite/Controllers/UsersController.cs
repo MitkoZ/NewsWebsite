@@ -248,24 +248,27 @@ namespace NewsWebsite.Controllers
             if (string.IsNullOrWhiteSpace(userId))
             {
                 ModelState.AddModelError(string.Empty, "Invalid user id");
+            }
+
+            if (!ModelState.IsValid)
+            {
                 return RedirectToIndexActionInHomeController();
             }
 
-
             User userDb = await usersService.GetAll(x => x.Id == userId)
                                             .FirstOrDefaultAsync();
-
-            ChangePasswordViewModel changePasswordViewModel = new ChangePasswordViewModel
-            {
-                UserId = userDb.Id,
-                Username = userDb.UserName
-            };
 
             if (userDb == null)
             {
                 TempData["ErrorMessage"] = "A user with this id doesn't exist!";
                 return RedirectToIndexActionInHomeController();
             }
+
+            ChangePasswordViewModel changePasswordViewModel = new ChangePasswordViewModel
+            {
+                UserId = userDb.Id,
+                Username = userDb.UserName
+            };
 
             return View(changePasswordViewModel);
         }
