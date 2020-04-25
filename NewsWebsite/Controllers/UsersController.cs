@@ -172,7 +172,7 @@ namespace NewsWebsite.Controllers
                 string passwordResetToken = await this.usersService.GeneratePasswordResetTokenAsync(userDb);
 
                 string passwordResetLink = Url.Action(nameof(SetPassword), this.GetControllerName(nameof(UsersController)), new { userId = userDb.Id, passwordResetToken }, Request.Scheme);
-                this.smtpService.SendEmail("NewsWebsite Reset password", string.Format("Hi {0}. You have requested to reset your pasword. To reset it please click here: {1}. If you haven't requested a password reset, please contact your system administrator because you may be at risk.", userDb.UserName, passwordResetLink), forgotPasswordViewModel.Email);
+                this.smtpService.SendEmail("NewsWebsite Reset password", string.Format("Hi {0}. You have requested to reset your pasword. To reset it please click here: {1} . If you haven't requested a password reset, please contact your system administrator because you may be at risk.", userDb.UserName, passwordResetLink), forgotPasswordViewModel.Email); // We intentionally use a space after the url, otherwise email providers will treat the dot as part of the url
             }
 
             return View("ForgotPasswordConfirmation"); // We send the same response no matter if a user user with this email exists or not, so we can prevent account enumeration
