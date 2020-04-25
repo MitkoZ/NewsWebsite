@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29709.97
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewsWebsite", "NewsWebsite\NewsWebsite.csproj", "{1E243404-DFB2-4FD3-985C-74E755079518}"
-EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{371BF1E9-6FAB-4CC6-84B0-A1B2B4B73FFF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewsWebsite", "NewsWebsite\NewsWebsite.csproj", "{1E243404-DFB2-4FD3-985C-74E755079518}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccess", "DataAccess\DataAccess.csproj", "{F6E13CA2-F8B5-49CF-BC88-FD47AC554BE6}"
 EndProject
